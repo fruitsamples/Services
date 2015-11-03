@@ -1,0 +1,417 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 38;
+	objects = {
+		014CEA460018CE2711CA2923 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		014CEA470018CE2711CA2923 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+//010
+//011
+//012
+//013
+//014
+//020
+//021
+//022
+//023
+//024
+		0249A660FF388D4511CA2CEA = {
+			isa = PBXExecutableFileReference;
+			path = DiskWriterAUGraph;
+			refType = 3;
+		};
+		0249A662FF388D9811CA2CEA = {
+			children = (
+				0249A663FF388D9811CA2CEA,
+				ECED7073029AB7310DCA2268,
+				ECBC3776029AAEA20DCA2268,
+				ECBC3775029AAEA20DCA2268,
+				ECBC3774029AAEA20DCA2268,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+		};
+		0249A663FF388D9811CA2CEA = {
+			isa = PBXFileReference;
+			name = "libstdc++.a";
+			path = "/usr/lib/libstdc++.a";
+			refType = 0;
+		};
+		0249A664FF388D9811CA2CEA = {
+			fileRef = 0249A663FF388D9811CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//020
+//021
+//022
+//023
+//024
+//080
+//081
+//082
+//083
+//084
+		08FB7793FE84155DC02AAC07 = {
+			buildStyles = (
+				014CEA460018CE2711CA2923,
+				014CEA470018CE2711CA2923,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 08FB7794FE84155DC02AAC07;
+			projectDirPath = "";
+			targets = (
+				08FB779FFE84155DC02AAC07,
+			);
+		};
+		08FB7794FE84155DC02AAC07 = {
+			children = (
+				08FB7795FE84155DC02AAC07,
+				0249A662FF388D9811CA2CEA,
+				1AB674ADFE9D54B511CA2CBB,
+			);
+			isa = PBXGroup;
+			name = DiskWriterGraph;
+			refType = 4;
+		};
+		08FB7795FE84155DC02AAC07 = {
+			children = (
+				08FB7796FE84155DC02AAC07,
+				ECED70FA029AB7C70DCA2268,
+				ECED70F6029AB7AA0DCA2268,
+				ECED70F7029AB7AA0DCA2268,
+				ECBC379D029AB5F80DCA2268,
+				ECBC379C029AB5F80DCA2268,
+				ECED7104029AB8E30DCA2268,
+			);
+			isa = PBXGroup;
+			name = Source;
+			refType = 4;
+		};
+		08FB7796FE84155DC02AAC07 = {
+			isa = PBXFileReference;
+			path = main.cpp;
+			refType = 4;
+		};
+		08FB779FFE84155DC02AAC07 = {
+			buildPhases = (
+				08FB77A0FE84155DC02AAC07,
+				08FB77A1FE84155DC02AAC07,
+				08FB77A3FE84155DC02AAC07,
+				08FB77A5FE84155DC02AAC07,
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = DiskWriterAUGraph;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			dependencies = (
+			);
+			isa = PBXToolTarget;
+			name = DiskWriterAUGraph;
+			productInstallPath = "$(HOME)/bin";
+			productName = DiskWriterGraph;
+			productReference = 0249A660FF388D4511CA2CEA;
+		};
+		08FB77A0FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				ECBC379F029AB5F80DCA2268,
+				ECED70F8029AB7AA0DCA2268,
+				ECED70FB029AB7C70DCA2268,
+				ECED7101029AB8DF0DCA2268,
+				ECED7103029AB8DF0DCA2268,
+				ECED7108029ABA0E0DCA2268,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A1FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				08FB77A2FE84155DC02AAC07,
+				ECBC379E029AB5F80DCA2268,
+				ECED70F9029AB7AA0DCA2268,
+				ECED7100029AB8DF0DCA2268,
+				ECED7102029AB8DF0DCA2268,
+				ECED7107029ABA0E0DCA2268,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A2FE84155DC02AAC07 = {
+			fileRef = 08FB7796FE84155DC02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		08FB77A3FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				0249A664FF388D9811CA2CEA,
+				ECBC3799029AAEA20DCA2268,
+				ECBC379A029AAEA20DCA2268,
+				ECBC379B029AAEA20DCA2268,
+				EC7DE438033785190DCA2268,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A5FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+//080
+//081
+//082
+//083
+//084
+//1A0
+//1A1
+//1A2
+//1A3
+//1A4
+		1AB674ADFE9D54B511CA2CBB = {
+			children = (
+				0249A660FF388D4511CA2CEA,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+//1A0
+//1A1
+//1A2
+//1A3
+//1A4
+//EC0
+//EC1
+//EC2
+//EC3
+//EC4
+		EC7DE438033785190DCA2268 = {
+			fileRef = ECED7073029AB7310DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECBC3774029AAEA20DCA2268 = {
+			isa = PBXFrameworkReference;
+			name = AudioToolbox.framework;
+			path = /System/Library/Frameworks/AudioToolbox.framework;
+			refType = 0;
+		};
+		ECBC3775029AAEA20DCA2268 = {
+			isa = PBXFrameworkReference;
+			name = AudioUnit.framework;
+			path = /System/Library/Frameworks/AudioUnit.framework;
+			refType = 0;
+		};
+		ECBC3776029AAEA20DCA2268 = {
+			isa = PBXFrameworkReference;
+			name = CoreAudio.framework;
+			path = /System/Library/Frameworks/CoreAudio.framework;
+			refType = 0;
+		};
+		ECBC3799029AAEA20DCA2268 = {
+			fileRef = ECBC3774029AAEA20DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECBC379A029AAEA20DCA2268 = {
+			fileRef = ECBC3775029AAEA20DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECBC379B029AAEA20DCA2268 = {
+			fileRef = ECBC3776029AAEA20DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECBC379C029AB5F80DCA2268 = {
+			isa = PBXFileReference;
+			path = RecordableFile.cpp;
+			refType = 4;
+		};
+		ECBC379D029AB5F80DCA2268 = {
+			isa = PBXFileReference;
+			path = RecordableFile.h;
+			refType = 4;
+		};
+		ECBC379E029AB5F80DCA2268 = {
+			fileRef = ECBC379C029AB5F80DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECBC379F029AB5F80DCA2268 = {
+			fileRef = ECBC379D029AB5F80DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED7073029AB7310DCA2268 = {
+			isa = PBXFrameworkReference;
+			name = CoreServices.framework;
+			path = /System/Library/Frameworks/CoreServices.framework;
+			refType = 0;
+		};
+		ECED70F6029AB7AA0DCA2268 = {
+			isa = PBXFileReference;
+			path = ProducerAUGraph.h;
+			refType = 4;
+		};
+		ECED70F7029AB7AA0DCA2268 = {
+			isa = PBXFileReference;
+			path = ProducerAUGraph.cpp;
+			refType = 4;
+		};
+		ECED70F8029AB7AA0DCA2268 = {
+			fileRef = ECED70F6029AB7AA0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED70F9029AB7AA0DCA2268 = {
+			fileRef = ECED70F7029AB7AA0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED70FA029AB7C70DCA2268 = {
+			isa = PBXFileReference;
+			path = AudioIncludes.h;
+			refType = 4;
+		};
+		ECED70FB029AB7C70DCA2268 = {
+			fileRef = ECED70FA029AB7C70DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED70FC029AB8DF0DCA2268 = {
+			isa = PBXFileReference;
+			name = CAGuard.cp;
+			path = ../../PublicUtility/CAGuard.cp;
+			refType = 2;
+		};
+		ECED70FD029AB8DF0DCA2268 = {
+			isa = PBXFileReference;
+			name = CAGuard.h;
+			path = ../../PublicUtility/CAGuard.h;
+			refType = 2;
+		};
+		ECED70FE029AB8DF0DCA2268 = {
+			isa = PBXFileReference;
+			name = CAPThread.cp;
+			path = ../../PublicUtility/CAPThread.cp;
+			refType = 2;
+		};
+		ECED70FF029AB8DF0DCA2268 = {
+			isa = PBXFileReference;
+			name = CAPThread.h;
+			path = ../../PublicUtility/CAPThread.h;
+			refType = 2;
+		};
+		ECED7100029AB8DF0DCA2268 = {
+			fileRef = ECED70FC029AB8DF0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED7101029AB8DF0DCA2268 = {
+			fileRef = ECED70FD029AB8DF0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED7102029AB8DF0DCA2268 = {
+			fileRef = ECED70FE029AB8DF0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED7103029AB8DF0DCA2268 = {
+			fileRef = ECED70FF029AB8DF0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED7104029AB8E30DCA2268 = {
+			children = (
+				ECED70FC029AB8DF0DCA2268,
+				ECED70FD029AB8DF0DCA2268,
+				ECED70FE029AB8DF0DCA2268,
+				ECED70FF029AB8DF0DCA2268,
+				ECED7105029ABA0E0DCA2268,
+				ECED7106029ABA0E0DCA2268,
+			);
+			isa = PBXGroup;
+			name = PublicUtility;
+			refType = 4;
+		};
+		ECED7105029ABA0E0DCA2268 = {
+			isa = PBXFileReference;
+			name = CAHostTimeBase.cp;
+			path = ../../PublicUtility/CAHostTimeBase.cp;
+			refType = 2;
+		};
+		ECED7106029ABA0E0DCA2268 = {
+			isa = PBXFileReference;
+			name = CAHostTimeBase.h;
+			path = ../../PublicUtility/CAHostTimeBase.h;
+			refType = 2;
+		};
+		ECED7107029ABA0E0DCA2268 = {
+			fileRef = ECED7105029ABA0E0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ECED7108029ABA0E0DCA2268 = {
+			fileRef = ECED7106029ABA0E0DCA2268;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = 08FB7793FE84155DC02AAC07;
+}

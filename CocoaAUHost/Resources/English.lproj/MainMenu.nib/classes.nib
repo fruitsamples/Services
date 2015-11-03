@@ -1,0 +1,35 @@
+{
+    IBClasses = (
+        {CLASS = AudioFileListView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                iaAUPopUpButtonPressed = id; 
+                iaBypassAUPressed = id; 
+                iaPlayStopButtonPressed = id; 
+                iaRestorePresetButtonPressed = id; 
+                iaSavePresetButtonPressed = id; 
+            }; 
+            CLASS = HostingWindowController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                uiAUPopUpButton = NSPopUpButton; 
+                uiAUViewContainer = NSBox; 
+                uiAudioFileNowPlayingName = NSTextField; 
+                uiAudioFileTableView = AudioFileListView; 
+                uiBypassButton = NSButton; 
+                uiPlayStopButton = NSButton; 
+                uiRestorePresetButton = NSButton; 
+                uiSavePresetButton = NSButton; 
+            }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {
+            CLASS = MyApplication; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {hostWindow = NSWindow; }; 
+            SUPERCLASS = NSApplication; 
+        }
+    ); 
+    IBVersion = 1; 
+}

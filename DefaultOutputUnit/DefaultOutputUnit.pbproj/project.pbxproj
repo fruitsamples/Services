@@ -1,0 +1,305 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 38;
+	objects = {
+		014CEA460018CE2711CA2923 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		014CEA470018CE2711CA2923 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+//010
+//011
+//012
+//013
+//014
+//020
+//021
+//022
+//023
+//024
+		0249A660FF388D4511CA2CEA = {
+			isa = PBXExecutableFileReference;
+			path = DefaultOutputUnit;
+			refType = 3;
+		};
+		0249A662FF388D9811CA2CEA = {
+			children = (
+				0249A663FF388D9811CA2CEA,
+				F53D6D4B00FBE04C01CA2136,
+				F53D6D4C00FBE04C01CA2136,
+				F5602B080118D76501CA20C6,
+				F506AC2B011CBD4201000001,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+		};
+		0249A663FF388D9811CA2CEA = {
+			isa = PBXFileReference;
+			name = "libstdc++.a";
+			path = "/usr/lib/libstdc++.a";
+			refType = 0;
+		};
+		0249A664FF388D9811CA2CEA = {
+			fileRef = 0249A663FF388D9811CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//020
+//021
+//022
+//023
+//024
+//080
+//081
+//082
+//083
+//084
+		08FB7793FE84155DC02AAC07 = {
+			buildStyles = (
+				014CEA460018CE2711CA2923,
+				014CEA470018CE2711CA2923,
+			);
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = 08FB7794FE84155DC02AAC07;
+			projectDirPath = "";
+			targets = (
+				08FB779FFE84155DC02AAC07,
+			);
+		};
+		08FB7794FE84155DC02AAC07 = {
+			children = (
+				08FB7795FE84155DC02AAC07,
+				0249A662FF388D9811CA2CEA,
+				1AB674ADFE9D54B511CA2CBB,
+			);
+			isa = PBXGroup;
+			name = test;
+			refType = 4;
+		};
+		08FB7795FE84155DC02AAC07 = {
+			children = (
+				F523C9FC01220F7E0157DD2E,
+				F5CBF99902E5F30801CA20C6,
+				F5A54D35036488DD01000102,
+				F5A54D3E0364891201000102,
+			);
+			isa = PBXGroup;
+			name = Source;
+			refType = 4;
+		};
+		08FB779FFE84155DC02AAC07 = {
+			buildPhases = (
+				08FB77A0FE84155DC02AAC07,
+				08FB77A1FE84155DC02AAC07,
+				08FB77A3FE84155DC02AAC07,
+				08FB77A5FE84155DC02AAC07,
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = "";
+				OPTIMIZATION_CFLAGS = "-O3";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = DefaultOutputUnit;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			dependencies = (
+			);
+			isa = PBXToolTarget;
+			name = test;
+			productInstallPath = "$(HOME)/bin";
+			productName = test;
+			productReference = 0249A660FF388D4511CA2CEA;
+		};
+		08FB77A0FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				A949B9A404FEE4B200CA20C6,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A1FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				A949B9A204FEE4A100CA20C6,
+				A949B9A304FEE4B100CA20C6,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A3FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				0249A664FF388D9811CA2CEA,
+				F53D6D4D00FBE04C01CA2136,
+				F53D6D4E00FBE04C01CA2136,
+				F5602B090118D76501CA20C6,
+				F506AC2C011CBD4201000001,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A5FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+//080
+//081
+//082
+//083
+//084
+//1A0
+//1A1
+//1A2
+//1A3
+//1A4
+		1AB674ADFE9D54B511CA2CBB = {
+			children = (
+				0249A660FF388D4511CA2CEA,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+//1A0
+//1A1
+//1A2
+//1A3
+//1A4
+//A90
+//A91
+//A92
+//A93
+//A94
+		A949B9A204FEE4A100CA20C6 = {
+			fileRef = F523C9FC01220F7E0157DD2E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		A949B9A304FEE4B100CA20C6 = {
+			fileRef = F5A54D35036488DD01000102;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		A949B9A404FEE4B200CA20C6 = {
+			fileRef = F5A54D3E0364891201000102;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//A90
+//A91
+//A92
+//A93
+//A94
+//F50
+//F51
+//F52
+//F53
+//F54
+		F506AC2B011CBD4201000001 = {
+			isa = PBXFrameworkReference;
+			name = CoreAudio.framework;
+			path = /System/Library/Frameworks/CoreAudio.framework;
+			refType = 0;
+		};
+		F506AC2C011CBD4201000001 = {
+			fileRef = F506AC2B011CBD4201000001;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F523C9FC01220F7E0157DD2E = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = UsingDefaultNoAC.cpp;
+			refType = 4;
+		};
+		F53D6D4B00FBE04C01CA2136 = {
+			isa = PBXFrameworkReference;
+			name = AudioToolbox.framework;
+			path = /System/Library/Frameworks/AudioToolbox.framework;
+			refType = 0;
+		};
+		F53D6D4C00FBE04C01CA2136 = {
+			isa = PBXFrameworkReference;
+			name = AudioUnit.framework;
+			path = /System/Library/Frameworks/AudioUnit.framework;
+			refType = 0;
+		};
+		F53D6D4D00FBE04C01CA2136 = {
+			fileRef = F53D6D4B00FBE04C01CA2136;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F53D6D4E00FBE04C01CA2136 = {
+			fileRef = F53D6D4C00FBE04C01CA2136;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5602B080118D76501CA20C6 = {
+			isa = PBXFrameworkReference;
+			name = CoreServices.framework;
+			path = /System/Library/Frameworks/CoreServices.framework;
+			refType = 0;
+		};
+		F5602B090118D76501CA20C6 = {
+			fileRef = F5602B080118D76501CA20C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5A54D35036488DD01000102 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = RenderSin.cpp;
+			refType = 4;
+		};
+		F5A54D3E0364891201000102 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = RenderSin.h;
+			refType = 4;
+		};
+		F5CBF99902E5F30801CA20C6 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			path = UsingLoad.cpp;
+			refType = 4;
+		};
+	};
+	rootObject = 08FB7793FE84155DC02AAC07;
+}

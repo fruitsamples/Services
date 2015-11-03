@@ -1,0 +1,433 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 38;
+	objects = {
+		014CEA460018CE2711CA2923 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "\U0001-DDEBUG=1";
+			};
+			isa = PBXBuildStyle;
+			name = Development;
+		};
+		014CEA470018CE2711CA2923 = {
+			buildRules = (
+			);
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
+//010
+//011
+//012
+//013
+//014
+//020
+//021
+//022
+//023
+//024
+		0249A660FF388D4511CA2CEA = {
+			isa = PBXExecutableFileReference;
+			path = PlayAudioFile;
+			refType = 3;
+		};
+		0249A662FF388D9811CA2CEA = {
+			children = (
+				0249A663FF388D9811CA2CEA,
+				F51FDC3E028DC5EE01CA20C6,
+				F51FDC3F028DC5EE01CA20C6,
+				F51FDC40028DC5EE01CA20C6,
+			);
+			isa = PBXGroup;
+			name = "External Frameworks and Libraries";
+			refType = 4;
+		};
+		0249A663FF388D9811CA2CEA = {
+			isa = PBXFileReference;
+			name = "libstdc++.a";
+			path = "/usr/lib/libstdc++.a";
+			refType = 0;
+		};
+		0249A664FF388D9811CA2CEA = {
+			fileRef = 0249A663FF388D9811CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+//020
+//021
+//022
+//023
+//024
+//080
+//081
+//082
+//083
+//084
+		08FB7793FE84155DC02AAC07 = {
+			buildStyles = (
+				014CEA460018CE2711CA2923,
+				014CEA470018CE2711CA2923,
+			);
+			isa = PBXProject;
+			mainGroup = 08FB7794FE84155DC02AAC07;
+			projectDirPath = "";
+			targets = (
+				08FB779FFE84155DC02AAC07,
+			);
+		};
+		08FB7794FE84155DC02AAC07 = {
+			children = (
+				08FB7795FE84155DC02AAC07,
+				0249A662FF388D9811CA2CEA,
+				1AB674ADFE9D54B511CA2CBB,
+			);
+			isa = PBXGroup;
+			name = PlayAudioFile;
+			refType = 4;
+		};
+		08FB7795FE84155DC02AAC07 = {
+			children = (
+				08FB7796FE84155DC02AAC07,
+				F5CB30A10295E42C01586427,
+			);
+			isa = PBXGroup;
+			name = Source;
+			refType = 4;
+		};
+		08FB7796FE84155DC02AAC07 = {
+			isa = PBXFileReference;
+			path = main.cpp;
+			refType = 4;
+		};
+		08FB779FFE84155DC02AAC07 = {
+			buildPhases = (
+				08FB77A0FE84155DC02AAC07,
+				08FB77A1FE84155DC02AAC07,
+				08FB77A3FE84155DC02AAC07,
+				08FB77A5FE84155DC02AAC07,
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = PlayAudioFile;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			dependencies = (
+			);
+			isa = PBXToolTarget;
+			name = PlayAudioFile;
+			productInstallPath = "$(HOME)/bin";
+			productName = PlayAudioFile;
+			productReference = 0249A660FF388D4511CA2CEA;
+			shouldUseHeadermap = 1;
+		};
+		08FB77A0FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				F5CB30CA0295E42C01586427,
+				F5CB30CE0295E42C01586427,
+				F5CB30E50295E42C01586427,
+				F5CB30E70295E42C01586427,
+				F5CB30E90295E42C01586427,
+				F5CB30F40295E4E401586427,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A1FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				08FB77A2FE84155DC02AAC07,
+				F5CB30CB0295E42C01586427,
+				F5CB30CC0295E42C01586427,
+				F5CB30CD0295E42C01586427,
+				F5CB30CF0295E42C01586427,
+				F5CB30E60295E42C01586427,
+				F5CB30E80295E42C01586427,
+				F5CB30F30295E4E401586427,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A2FE84155DC02AAC07 = {
+			fileRef = 08FB7796FE84155DC02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		08FB77A3FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+				0249A664FF388D9811CA2CEA,
+				F51FDD32028DC5EE01CA20C6,
+				F51FDD33028DC5EE01CA20C6,
+				F51FDD34028DC5EE01CA20C6,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		08FB77A5FE84155DC02AAC07 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+//080
+//081
+//082
+//083
+//084
+//1A0
+//1A1
+//1A2
+//1A3
+//1A4
+		1AB674ADFE9D54B511CA2CBB = {
+			children = (
+				0249A660FF388D4511CA2CEA,
+			);
+			isa = PBXGroup;
+			name = Products;
+			refType = 4;
+		};
+//1A0
+//1A1
+//1A2
+//1A3
+//1A4
+//F50
+//F51
+//F52
+//F53
+//F54
+		F51FDC3E028DC5EE01CA20C6 = {
+			isa = PBXFrameworkReference;
+			name = AudioToolbox.framework;
+			path = /System/Library/Frameworks/AudioToolbox.framework;
+			refType = 0;
+		};
+		F51FDC3F028DC5EE01CA20C6 = {
+			isa = PBXFrameworkReference;
+			name = AudioUnit.framework;
+			path = /System/Library/Frameworks/AudioUnit.framework;
+			refType = 0;
+		};
+		F51FDC40028DC5EE01CA20C6 = {
+			isa = PBXFrameworkReference;
+			name = CoreServices.framework;
+			path = /System/Library/Frameworks/CoreServices.framework;
+			refType = 0;
+		};
+		F51FDD32028DC5EE01CA20C6 = {
+			fileRef = F51FDC3E028DC5EE01CA20C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51FDD33028DC5EE01CA20C6 = {
+			fileRef = F51FDC3F028DC5EE01CA20C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51FDD34028DC5EE01CA20C6 = {
+			fileRef = F51FDC40028DC5EE01CA20C6;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30A10295E42C01586427 = {
+			children = (
+				F5CB30A20295E42C01586427,
+				F5CB30A30295E42C01586427,
+				F5CB30F10295E4E401586427,
+				F5CB30F20295E4E401586427,
+				F5CB30BE0295E42C01586427,
+				F5CB30BF0295E42C01586427,
+				F5CB30C00295E42C01586427,
+				F5CB30C10295E42C01586427,
+				F5CB30C20295E42C01586427,
+			);
+			isa = PBXGroup;
+			name = PublicUtility;
+			path = ../../PublicUtility;
+			refType = 2;
+		};
+		F5CB30A20295E42C01586427 = {
+			isa = PBXFileReference;
+			path = AudioFilePlay.h;
+			refType = 4;
+		};
+		F5CB30A30295E42C01586427 = {
+			children = (
+				F5CB30A40295E42C01586427,
+				F5CB30A50295E42C01586427,
+				F5CB30A60295E42C01586427,
+				F5CB30A70295E42C01586427,
+				F5CB30A80295E42C01586427,
+			);
+			isa = PBXGroup;
+			path = AudioFilePlayImpl;
+			refType = 4;
+		};
+		F5CB30A40295E42C01586427 = {
+			isa = PBXFileReference;
+			path = AudioFileData.cpp;
+			refType = 4;
+		};
+		F5CB30A50295E42C01586427 = {
+			isa = PBXFileReference;
+			path = AudioFilePlay.cpp;
+			refType = 4;
+		};
+		F5CB30A60295E42C01586427 = {
+			isa = PBXFileReference;
+			path = AudioFilePlayer.cpp;
+			refType = 4;
+		};
+		F5CB30A70295E42C01586427 = {
+			isa = PBXFileReference;
+			path = AudioFilePlayer.h;
+			refType = 4;
+		};
+		F5CB30A80295E42C01586427 = {
+			isa = PBXFileReference;
+			path = AudioFileReaderThread.cpp;
+			refType = 4;
+		};
+		F5CB30BE0295E42C01586427 = {
+			isa = PBXFileReference;
+			path = CAException.h;
+			refType = 4;
+		};
+		F5CB30BF0295E42C01586427 = {
+			isa = PBXFileReference;
+			path = CAGuard.cp;
+			refType = 4;
+		};
+		F5CB30C00295E42C01586427 = {
+			isa = PBXFileReference;
+			path = CAGuard.h;
+			refType = 4;
+		};
+		F5CB30C10295E42C01586427 = {
+			isa = PBXFileReference;
+			path = CAHostTimeBase.cp;
+			refType = 4;
+		};
+		F5CB30C20295E42C01586427 = {
+			isa = PBXFileReference;
+			path = CAHostTimeBase.h;
+			refType = 4;
+		};
+		F5CB30CA0295E42C01586427 = {
+			fileRef = F5CB30A20295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30CB0295E42C01586427 = {
+			fileRef = F5CB30A40295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30CC0295E42C01586427 = {
+			fileRef = F5CB30A50295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30CD0295E42C01586427 = {
+			fileRef = F5CB30A60295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30CE0295E42C01586427 = {
+			fileRef = F5CB30A70295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30CF0295E42C01586427 = {
+			fileRef = F5CB30A80295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30E50295E42C01586427 = {
+			fileRef = F5CB30BE0295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30E60295E42C01586427 = {
+			fileRef = F5CB30BF0295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30E70295E42C01586427 = {
+			fileRef = F5CB30C00295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30E80295E42C01586427 = {
+			fileRef = F5CB30C10295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30E90295E42C01586427 = {
+			fileRef = F5CB30C20295E42C01586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30F10295E4E401586427 = {
+			isa = PBXFileReference;
+			path = CADebugMacros.cp;
+			refType = 4;
+		};
+		F5CB30F20295E4E401586427 = {
+			isa = PBXFileReference;
+			path = CADebugMacros.h;
+			refType = 4;
+		};
+		F5CB30F30295E4E401586427 = {
+			fileRef = F5CB30F10295E4E401586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5CB30F40295E4E401586427 = {
+			fileRef = F5CB30F20295E4E401586427;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+	};
+	rootObject = 08FB7793FE84155DC02AAC07;
+}

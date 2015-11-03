@@ -1,0 +1,38 @@
+#!/bin/sh
+# DOU Automated test runs dozens of tests on the Default Output Unit,
+# ensuring that conversions are handled properly.
+
+logFile="DOUTest.log"
+
+echo "Test Started on `date`" > $logFile
+echo "--------------------------------------------" >> $logFile
+
+echo "Writing data to $logFile as well"
+echo "-----------------------------------"
+
+channels="2 4 8 16"
+bitdepth="16 24 32"
+samplerate="8000 11025 22050 32000 44100 48000 64000 88200 96000 192000 384000 57043 78943.54 843 200401"
+
+	for i in $channels; do
+		for j in $bitdepth; do
+			for k in $samplerate; do
+				currentTest="Testing at $i channels, $j-bit, $k Hz."
+				echo
+				echo $currentTest
+				build/DefaultOutputUnit -c $i -d $j -s $k
+				
+				if test $? -ne 0
+				then
+					echo "previous test exited with non-zero result"
+					echo "FAILED"
+					echo "FAILED: $currentTest" >> $logFile
+					exit 1
+				else
+					echo "PASS:   $currentTest" >> $logFile
+				fi
+			done
+		done
+	done
+
+echo "Test Ended on `date`" >> $logFile
