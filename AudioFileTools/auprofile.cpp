@@ -50,6 +50,7 @@
 #include "CAXException.h"
 #include "CAHostTimeBase.h"
 #include "CAFilePathUtils.h"
+#include "CAAudioFileFormats.h"
 
 #if TARGET_OS_MAC
 	#include <pthread.h>
@@ -190,35 +191,13 @@ home:
 #define OFFLINE_AU_CMD 		"[-au TYPE SUBTYPE MANU] The Audio Unit component description\n\t"
 #define INPUT_FILE	 		"[-i /Path/To/File] The file that is to be processed.\n\t"
 #define AU_PRESET_CMD		"[-p /Path/To/AUPreset/File] Specify an AU Preset File to establish the state of the AU\n\t"
-#define USE_MAX_FRAMES		"[-f max_frames] default is 32768"
+#define USE_MAX_FRAMES		"[-f max_frames] default is 4096"
  
-static char* usageStr = "Usage: AU Process\n\t" 
+static char* usageStr = "Usage: auprofile\n\t" 
 				OFFLINE_AU_CMD 
 				INPUT_FILE
 				AU_PRESET_CMD
 				USE_MAX_FRAMES;
-
-static int		StrToOSType(const char *str, OSType &t)
-{
-	char buf[4];
-	const char *p = str;
-	int x;
-	for (int i = 0; i < 4; ++i) {
-		if (*p != '\\') {
-			if ((buf[i] = *p++) == '\0')
-				goto fail;
-		} else {
-			if (*++p != 'x') goto fail;
-			if (sscanf(++p, "%02X", &x) != 1) goto fail;
-			buf[i] = x;
-			p += 2;
-		}
-	}
-	t = EndianU32_BtoN(*(UInt32 *)buf);
-	return p - str;
-fail:
-	return 0;
-}
 
 int main(int argc, const char * argv[])
 {
@@ -248,7 +227,7 @@ int main(int argc, const char * argv[])
 	char* srcFilePath = NULL;
 	char* auPresetFile = NULL;
 	OSType manu, subType, type = 0;
-	UInt32 numFrames = 8192;
+	UInt32 numFrames = 4096;
 	
 	for (int i = 1; i < argc; ++i)
 	{
@@ -320,7 +299,7 @@ int main(int argc, const char * argv[])
 		CAStreamBasicDescription procFormat (srcFile.GetFileDataFormat());
 		procFormat.SetCanonical (srcFile.GetFileDataFormat().NumberChannels(), false);
 
-										printf ("Processing file: %s, %.1f secs\n", srcFilePath, inputSecs);
+										printf ("Processing file: %s, %.1f secs [proc: %ld frames]\n", srcFilePath, inputSecs, numFrames);
 										#if VERBOSE
 											printf("\t");
 											procFormat.Print();
@@ -353,6 +332,7 @@ int main(int argc, const char * argv[])
 		}
 			// this does ALL of the preflighting.. could be specialise for an OfflineAU type
 			// to do this piecemeal and do a progress bar by using the OfflineAUPreflight method
+		readBuf->lastInputFrames = 0;
 		require_noerr (result = processor.Preflight (), home);
 	
 	float mean;
@@ -369,7 +349,7 @@ int main(int argc, const char * argv[])
 		Float64 totalM;
 		
 		int i = 0;
-		int discardResults = 10;
+		int discardResults = 3;
 						
 			// this is the render loop
 		while (!isDone) 
@@ -405,8 +385,8 @@ int main(int argc, const char * argv[])
 //			printf ("current measure: %.2f\n", cpuTime);
 			if (numMeasures % 5 == 0) {
 				Float64 mean = totalM / numMeasures;				
-				Float64 total = ((numMeasures * totalMSqrd) - (totalM * totalM)) / (numMeasures * (numMeasures - 1.));
-				Float64 stdDev = sqrt (total);
+					//	stdDev = (sum of Xsquared -((sum of X)*(sum of X)/N)) / (N-1))
+				Float64 stdDev = sqrt ((totalMSqrd - ((totalM * totalM) / numMeasures)) / (numMeasures-1.0));
 				printf ("ave: %.2f, min: %.2f, max: %.2f, stdev: %.2f, numMeasures: %ld, current: %f\n", 
 					mean, sMinTime, sMaxTime, stdDev, numMeasures, cpuTime);
 			}
@@ -415,8 +395,8 @@ int main(int argc, const char * argv[])
 		delete [] thrasher;
 		
 		mean = totalM / numMeasures;
-		Float64 total = ((numMeasures * totalMSqrd) - (totalM * totalM)) / (numMeasures * (numMeasures - 1.));
-		Float64 stdDev = sqrt (total);
+			//	stdDev = (sum of Xsquared -((sum of X)*(sum of X)/N)) / (N-1))
+		Float64 stdDev = sqrt ((totalMSqrd - ((totalM * totalM) / numMeasures)) / (numMeasures-1.0));
 
 		printf ("ave: %.2f, min: %.2f, max: %.2f, sd: %.2f, sd / mean: %.2f%%\n", 
 			mean, sMinTime, sMaxTime, stdDev, (stdDev / mean * 100.));
@@ -449,15 +429,20 @@ home:
 		}
 
 		UInt32 presetLen = presetName ? CFStringGetLength(presetName) : 0;
-
+		
+		UInt32 groupID = comp.Desc().componentSubType;
+		
 		char* cstr = (char*)malloc (compNameLen + presetLen + 2 + 1);
 		CFStringGetCString (str, cstr, (CFStringGetLength (str) + 1), kCFStringEncodingASCII);
 		if (presetName) {
 			cstr[compNameLen] = ':';
 			cstr[compNameLen+1] = ':';
 			CFStringGetCString (presetName, cstr + compNameLen + 2, (CFStringGetLength (presetName) + 1), kCFStringEncodingASCII);
+			int len = strlen(cstr);
+			for (int i = 0; i < len; ++i)
+				groupID += cstr[i];
 		}
-		PerfResult("AU Profile", EndianU32_NtoB(comp.Desc().componentSubType), cstr, mean, "%realtime");
+		PerfResult("AU Profile", EndianU32_NtoB(groupID), cstr, mean, "%realtime");
 		free (cstr);
 
 	}

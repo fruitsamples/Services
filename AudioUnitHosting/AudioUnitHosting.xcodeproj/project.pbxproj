@@ -183,6 +183,10 @@
 			isa = PBXBuildFile;
 			fileRef = A93D96A5087611350076782D;
 		};
+		A9836DF409C0FE54006CF202 = {
+			isa = PBXBuildFile;
+			fileRef = A9836DF309C0FE54006CF202;
+		};
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildStyle section */
@@ -288,6 +292,13 @@
 			name = English;
 			path = English.lproj/AudioUnitHosting.icns;
 			sourceTree = "<group>";
+		};
+		A9836DF309C0FE54006CF202 = {
+			isa = PBXFileReference;
+			fileEncoding = 30;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = AUMIDIProcessor.cpp;
+			sourceTree = SOURCE_ROOT;
 		};
 		F507286D02BE5FE601000102 = {
 			isa = PBXFileReference;
@@ -719,6 +730,7 @@
 				F5E762B802B7324F01000103,
 				F50E039902F3521E01CA20C6,
 				F50E039B02F3522401CA20C6,
+				A9836DF309C0FE54006CF202,
 			);
 			name = AudioUnitHosting;
 			sourceTree = "<group>";
@@ -860,6 +872,7 @@
 				3EB3AC02079D52FA0046E3F3,
 				3EB3AC03079D52FA0046E3F3,
 				3EB3AC19079D54060046E3F3,
+				A9836DF409C0FE54006CF202,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

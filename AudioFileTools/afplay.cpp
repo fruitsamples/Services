@@ -146,7 +146,7 @@ int main(int argc, const char *argv[])
 
 	try {
 		const int kNumberBuffers = 3;
-		const unsigned kBufferSize = 0x8000;
+		const unsigned kBufferSize = 0x1000;
 		FSRef playFSRef;
 		XThrowIfError(FSPathMakeRef((UInt8 *)fileToPlay, &playFSRef, NULL), "Input file not found");
 		CAChannelMappingPlayer player(kNumberBuffers, kBufferSize);

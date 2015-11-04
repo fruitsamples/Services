@@ -67,7 +67,17 @@ bool ParseStreamDescription(const char *inTextDesc, CAStreamBasicDescription &fm
 	
 	memset(&fmt, 0, sizeof(fmt));
 	OSType formatID;
-	int x = StrToOSType(p, formatID);
+	int x;
+	if (strchr("-@/#", p[3])) {
+		// special-case for 3-char format ID's ending with a space
+		char fmtstr[4];
+		memcpy(fmtstr, p, 3);
+		fmtstr[3] = ' ';
+		formatID = EndianU32_BtoN(*(UInt32 *)fmtstr);
+		x = 3;
+	} else {
+		x = StrToOSType(p, formatID);
+	}
 	if (theFileFormats->IsKnownDataFormat(formatID)) {
 		p += x;
 		fmt.mFormatID = formatID;

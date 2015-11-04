@@ -246,12 +246,12 @@ void	CAAudioFileConverter::ConvertFile(const ConversionParameters &_params)
 		}
 		mSrcFormat = srcFormat;
 		
-		bool encoding = !destFormat.IsPCM();
-		bool decoding = !srcFormat.IsPCM();
-		
 		// prepare output file's format
 		destFormat = mParams.output.dataFormat;
 
+		bool encoding = !destFormat.IsPCM();
+		bool decoding = !srcFormat.IsPCM();
+		
 		if (!encoding && destFormat.mSampleRate == 0.)
 			// on encode, it's OK to have a 0 sample rate; ExtAudioFile will get the SR from the converter and set it on the file.
 			// on decode or PCM->PCM, a sample rate of 0 is interpreted as using the source sample rate
@@ -434,8 +434,6 @@ void	CAAudioFileConverter::ConvertFile(const ConversionParameters &_params)
 		delete mReadPtrs;
 		delete writeBuffer;
 		delete writePtrs;
-		if (!createdOutputFile)
-			PrintFormats(&origSrcFileLayout);
 		try { mSrcFile.Close(); } catch (...) { }
 		try { mDestFile.Close(); } catch (...) { }
 		if (createdOutputFile)

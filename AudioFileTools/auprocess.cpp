@@ -50,6 +50,7 @@
 #include "CAXException.h"
 #include "CAHostTimeBase.h"
 #include "CAFilePathUtils.h"
+#include "CAAudioFileFormats.h"
 
 #if TARGET_OS_MAC
 	#include <pthread.h>
@@ -283,35 +284,13 @@ home:
 #define SHORT_MEM_CMD		"[-m] Just reads and processes the first half second of the input file\n\t"
 #define USE_MAX_FRAMES		"[-f max_frames] default is 32768 (512 for aufc units)"
  
-static char* usageStr = "Usage: AU Process\n\t" 
+static char* usageStr = "Usage: auprocess\n\t" 
 				OFFLINE_AU_CMD 
 				INPUT_FILE
 				OUTPUT_FILE
 				AU_PRESET_CMD
 				SHORT_MEM_CMD
 				USE_MAX_FRAMES;
-
-static int		StrToOSType(const char *str, OSType &t)
-{
-	char buf[4];
-	const char *p = str;
-	int x;
-	for (int i = 0; i < 4; ++i) {
-		if (*p != '\\') {
-			if ((buf[i] = *p++) == '\0')
-				goto fail;
-		} else {
-			if (*++p != 'x') goto fail;
-			if (sscanf(++p, "%02X", &x) != 1) goto fail;
-			buf[i] = x;
-			p += 2;
-		}
-	}
-	t = EndianU32_BtoN(*(UInt32 *)buf);
-	return p - str;
-fail:
-	return 0;
-}
 
 int main(int argc, const char * argv[])
 {
