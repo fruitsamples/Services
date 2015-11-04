@@ -35,75 +35,18 @@
 			(INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN
 			ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-/*=============================================================================
-	QTAACFile.h
-	
-=============================================================================*/
-
-#ifndef __QTAACFile_h__
-#define __QTAACFile_h__
-
-#include <QuickTime/QuickTime.h>
-#include <AudioToolbox/AudioConverter.h>
-#include <AudioToolbox/AudioFormat.h>
-#include <vector>
-#include "CAStreamBasicDescription.h"
-#include "CAAudioChannelLayout.h"
-
 /*
-	This class is a stripped-down analogue to CAAudioFile, designed solely for reading AAC audio
-	tracks from QuickTime/MP4 files.
-	
-	Throws CAXException's on errors.
-*/
-class QTAACFile {
-public:
-	QTAACFile();
-	~QTAACFile();
+ *  AudioFileReceiver_Protocol.h
+ *  CocoaAUHost
+ *
+ *  Created by Luke Bellandi 2 on 12/14/04.
+ *  Copyright 2004 Apple Computer, Inc. All rights reserved.
+ *
+ */
 
-	void		Open(const char *filePath);
-	void		Close();
+#import <Cocoa/Cocoa.h>
 
-	void		SetClientFormat(const CAStreamBasicDescription &dataFormat);
-					// set the PCM format to which the movie's audio will be decoded
+@protocol AudioFileReceiver
+- (void)addLinkToFiles:(NSArray *)inFiles;
+@end
 
-	OSStatus	SetConverterProperty(		AudioConverterPropertyID	inPropertyID,
-											UInt32						inPropertyDataSize,
-											const void*					inPropertyData,
-											bool						inCanFail);
-
-	void		ReadPackets(UInt32 &ioNumPackets, AudioBufferList *ioData);
-					// read packets from the audio file in the client format
-					
-private:
-	void	CloseConverter();
-	void	UpdateClientMaxPacketSize();
-
-	static OSStatus ReadInputProc(		AudioConverterRef				inAudioConverter,
-										UInt32*							ioNumberDataPackets,
-										AudioBufferList*				ioData,
-										AudioStreamPacketDescription**	outDataPacketDescription,
-										void*							inUserData);	
-
-private:
-	typedef std::vector<TimeValue> TimeValueList;
-	
-	SInt16							mMovieResFile;
-	Movie							mMovie;
-	Media							mMedia;
-	Handle							mPacketHandle;
-	UInt32							mMagicCookieSize;
-	char *							mMagicCookie;
-	TimeValueList					mPacketTimes;
-	UInt32							mNumberPackets;		// in file's format
-	UInt32							mPacketMark;		// location in file, in file's format
-		
-	CAStreamBasicDescription		mFileDataFormat;
-	CAStreamBasicDescription		mClientDataFormat;
-	AudioConverterRef				mConverter;
-	UInt32							mFileMaxPacketSize;
-	UInt32							mClientMaxPacketSize;
-	AudioStreamPacketDescription	mPacketDescription;
-};
-
-#endif // __QTAACFile_h__

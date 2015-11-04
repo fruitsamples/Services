@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -42,62 +42,20 @@
 
 #include "CAAudioFileRecorder.h"
 #include "CAXException.h"
-#include "CAAudioFileFormats.h"
 #include <unistd.h>
+#include "AFToolsCommon.h"
+#include "CAFilePathUtils.h"
+#include "CAAudioFileFormats.h"
 
 static void usage()
 {
-	CAAudioFileFormats *theFileFormats = CAAudioFileFormats::Instance();
-
 	fprintf(stderr,
 			"Usage:\n"
 			"%s [option...] audio_file\n\n"
 			"Options: (may appear before or after arguments)\n"
 			"    { -f | --file } file_format:\n"
 			, getprogname());
-
-	for (int i = 0; i < theFileFormats->mNumFileFormats; ++i) {
-		CAAudioFileFormats::FileFormatInfo *ffi = &theFileFormats->mFileFormats[i];
-		char buf[20];
-		char fmtName[256] = { 0 };
-		if (ffi->mFileTypeName)
-			CFStringGetCString(ffi->mFileTypeName, fmtName, sizeof(fmtName), kCFStringEncodingASCII);
-		fprintf(stderr, "        '%s' = %s\n", OSTypeToStr(buf, ffi->mFileTypeID), fmtName);
-		fprintf(stderr, "                   data_formats: ");
-		
-		int count = 0;
-		for (int j = 0; j < ffi->mNumDataFormats; ++j) {
-			CAAudioFileFormats::DataFormatInfo *dfi = &ffi->mDataFormats[j];
-			if (dfi->mFormatID == kAudioFormatLinearPCM) {
-				for (int k = 0; k < dfi->mNumVariants; ++k) {
-					if (++count == 6) {
-						fprintf(stderr, "\n                                 ");
-						count = 0;
-					}
-					AudioStreamBasicDescription *asbd = &dfi->mVariants[k];
-					if (asbd->mFormatFlags & ~(kAudioFormatFlagIsPacked | kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsFloat))
-						fprintf(stderr, "(%08lx/%ld) ", asbd->mFormatFlags, asbd->mBitsPerChannel);
-					else {
-						fprintf(stderr, "%s",
-							(asbd->mFormatFlags & kAudioFormatFlagIsBigEndian) ? "BE" : "LE");
-						if (asbd->mFormatFlags & kAudioFormatFlagIsFloat)
-							fprintf(stderr, "F");
-						else
-							fprintf(stderr, "%sI",
-								(asbd->mFormatFlags & kAudioFormatFlagIsSignedInteger) ? "" : "U");
-						fprintf(stderr, "%ld ", asbd->mBitsPerChannel);
-					}
-				}
-			} else {
-				if (++count == 6) {
-					fprintf(stderr, "\n                                 ");
-					count = 0;
-				}
-				fprintf(stderr, "'%s' ", OSTypeToStr(buf, dfi->mFormatID));
-			}
-		}
-		fprintf(stderr, "\n");
-	}
+	PrintAudioFileTypesAndFormats(stderr);
 	fprintf(stderr,
 			"    { -d | --data } data_format[@sample_rate_hz]:\n"
 			"        [-][BE|LE]{F|[U]I}{8|16|24|32|64}          (PCM)\n"
@@ -149,105 +107,6 @@ static int	ParseInt(const char *arg, const char *name)
 	return x;
 }
 
-/*
-struct AudioStreamBasicDescription
-{
-	Float64	mSampleRate;		//	the native sample rate of the audio stream
-	UInt32	mFormatID;			//	the specific encoding type of audio stream
-	UInt32	mFormatFlags;		//	flags specific to each format
-	UInt32	mBytesPerPacket;	//	the number of bytes in a packet
-	UInt32	mFramesPerPacket;	//	the number of frames in each packet
-	UInt32	mBytesPerFrame;		//	the number of bytes in a frame
-	UInt32	mChannelsPerFrame;	//	the number of channels in each frame
-	UInt32	mBitsPerChannel;	//	the number of bits in each channel
-	UInt32	mReserved;			//	reserved, pads the structure out to force 8 byte alignment
-};
-*/
-static bool ParseStreamDescription(const char *inTextDesc, CAStreamBasicDescription &fmt)
-{
-	const char *p = inTextDesc;
-	int bitdepth = 0;
-	CAAudioFileFormats *theFileFormats = CAAudioFileFormats::Instance();
-	
-	memset(&fmt, 0, sizeof(fmt));
-	OSType formatID;
-	int x = StrToOSType(p, formatID);
-	if (theFileFormats->IsKnownDataFormat(formatID)) {
-		p += x;
-		fmt.mFormatID = formatID;
-	}
-	
-	if (fmt.mFormatID == 0) {
-		// unknown format, assume LPCM
-		if (p[0] == '-')	// previously we required a leading dash on PCM formats
-			// pcm
-			++p;
-		fmt.mFormatID = kAudioFormatLinearPCM;
-		fmt.mFormatFlags = kAudioFormatFlagIsPacked;
-		fmt.mFramesPerPacket = 1;
-		fmt.mChannelsPerFrame = 1;
-		bool isUnsigned = false;
-	
-		if (p[0] == 'B' && p[1] == 'E') {
-			fmt.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
-			p += 2;
-		} else if (p[0] == 'L' && p[1] == 'E') {
-			p += 2;
-		} else {
-			// default is native-endian
-#if TARGET_RT_BIG_ENDIAN
-			fmt.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
-#endif
-		}
-		if (p[0] == 'F') {
-			fmt.mFormatFlags |= kAudioFormatFlagIsFloat;
-			++p;
-		} else {
-			if (p[0] == 'U') {
-				isUnsigned = true;
-				++p;
-			}
-			if (p[0] == 'I')
-				++p;
-			else {
-				fprintf(stderr, "The format '%s' is unknown or an unparseable PCM format specifier\n", inTextDesc);
-				goto Bail;
-			}
-		}
-		
-		while (isdigit(*p))
-			bitdepth = 10 * bitdepth + *p++ - '0';
-		if (fmt.mFormatFlags & kAudioFormatFlagIsFloat) {
-			if (bitdepth != 32 && bitdepth != 64) {
-				fprintf(stderr, "Valid float bitdepths are 32 and 64\n");
-				goto Bail;
-			}
-		} else {
-			if (bitdepth != 8 && bitdepth != 16 && bitdepth != 24 && bitdepth != 32) {
-				fprintf(stderr, "Valid integer bitdepths are 8, 16, 24, and 32\n");
-				goto Bail;
-			}
-			if (!isUnsigned)
-				fmt.mFormatFlags |= kAudioFormatFlagIsSignedInteger;
-		}
-		fmt.mBitsPerChannel = bitdepth;
-		fmt.mBytesPerPacket = fmt.mBytesPerFrame = bitdepth / 8;
-	}
-	if (*p == '@') {
-		++p;
-		while (isdigit(*p))
-			fmt.mSampleRate = 10 * fmt.mSampleRate + (*p++ - '0');
-	}
-	if (*p != '\0')
-		goto Bail;
-	return true;
-
-Bail:
-	fprintf(stderr, "Invalid format string: %s\n", inTextDesc);
-	fprintf(stderr, "Syntax of format strings is: [-][BE|LE]{F|I|UI}{8|16|24|32|64}[@sample_rate_hz]\n");
-	return false;
-}
-
 static void Record(CAAudioFileRecorder &recorder)
 {
 	recorder.Start();
@@ -264,7 +123,8 @@ int main(int argc, const char *argv[])
 
 	// set up defaults
 	AudioFileTypeID filetype = kAudioFileAIFFType;
-
+	
+	bool gotOutDataFormat = false;
 	CAStreamBasicDescription dataFormat;
 	dataFormat.mSampleRate = 44100.;	// later get this from the hardware
 	dataFormat.mFormatID = kAudioFormatLinearPCM;
@@ -294,6 +154,7 @@ int main(int argc, const char *argv[])
 				if (++i == argc) MissingArgument();
 				if (!ParseStreamDescription(argv[i], dataFormat))
 					usage();
+				gotOutDataFormat = true;
 			} else if (arg[0] == 'b' || !strcmp(arg, "-bitrate")) {
 				if (++i == argc) MissingArgument();
 				bitrate = ParseInt(argv[i], "-b | --bitrate");
@@ -310,6 +171,22 @@ int main(int argc, const char *argv[])
 	if (recordFileName == NULL)
 		usage();
 	
+	if (!gotOutDataFormat) {
+		if (filetype == 0) {
+			fprintf(stderr, "no output file or data format specified\n\n");
+			usage();
+		}
+		if (!CAAudioFileFormats::Instance()->InferDataFormatFromFileFormat(filetype, dataFormat)) {
+			fprintf(stderr, "Couldn't infer data format from file format\n\n");
+			usage();
+		}
+	} else if (filetype == 0) {
+		if (!CAAudioFileFormats::Instance()->InferFileFormatFromDataFormat(dataFormat, filetype)) {
+			dataFormat.PrintFormat(stderr, "", "Couldn't infer file format from data format");
+			usage();
+		}
+	}
+
 	unlink(recordFileName);
 	
 	if (dataFormat.IsPCM())
@@ -321,18 +198,16 @@ int main(int argc, const char *argv[])
 		const int kNumberBuffers = 3;
 		const unsigned kBufferSize = 0x8000;
 		CAAudioFileRecorder recorder(kNumberBuffers, kBufferSize);
-		recorder.SetFile(recordFileName, filetype, dataFormat, NULL);
+		FSRef parentDir;
+		CFStringRef filename;
+		XThrowIfError(PosixPathToParentFSRefAndName(recordFileName, parentDir, filename), "couldn't find output directory");
+		recorder.SetFile(parentDir, filename, filetype, dataFormat, NULL);
 		
 		CAAudioFile &recfile = recorder.GetFile();
-#warning bitrate/quality not implemented
-#if 1
 		if (bitrate >= 0)
-			recfile.SetConverterProperty(kAudioConverterEncodeBitRate, 
-				sizeof(UInt32), &bitrate);
+			recfile.SetConverterProperty(kAudioConverterEncodeBitRate, sizeof(UInt32), &bitrate);
 		if (quality >= 0)
-			recfile.SetConverterProperty(kAudioConverterCodecQuality, 
-					sizeof(UInt32), &quality);
-#endif
+			recfile.SetConverterProperty(kAudioConverterCodecQuality, sizeof(UInt32), &quality);
 
 		Record(recorder);
 	}

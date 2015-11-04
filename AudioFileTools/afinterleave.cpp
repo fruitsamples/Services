@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -44,6 +44,7 @@
 #include "CAXException.h"
 #include <unistd.h>
 #include "CAChannelLayouts.h"
+#include "CAFilePathUtils.h"
 
 static void usage()
 {
@@ -107,7 +108,7 @@ void	Interleave(int nInputs, const char *infilenames[], const char *outfilename,
 		
 		if (layout != NULL) {
 			if (AudioChannelLayoutTag_GetNumberOfChannels(layout->Tag()) != outputChannels) {
-				fprintf(stderr, "Channel layout tag '%s' is inappropriate for %d channels of audio -- aborting\n", 
+				fprintf(stderr, "Channel layout tag '%s' is inappropriate for %lu channels of audio -- aborting\n", 
 					CAChannelLayouts::ConstantToString(layout->Tag()), outputChannels);
 				exit(2);
 			}
@@ -123,7 +124,13 @@ void	Interleave(int nInputs, const char *infilenames[], const char *outfilename,
 		outfmt.mBytesPerPacket = outfmt.mBytesPerFrame = outputChannels * (maxBitDepth >> 3);
 		outfmt.mFramesPerPacket = 1;
 		//outfmt.PrintFormat(stdout, "", "output file");
-		outfile.PrepareNew(outfmt, layout);
+		
+		unlink(outfilename);
+		FSRef parentDir;
+		CFStringRef outName;
+		XThrowIfError(PosixPathToParentFSRefAndName(outfilename, parentDir, outName), "Couldn't locate output directory");
+		outfile.CreateNew(parentDir, outName, kAudioFileAIFFType, outfmt, layout ? &layout->Layout() : NULL);
+		outFileCreated = true;
 		
 		// create the output file and buffers
 		clientFormat.mSampleRate = sampleRate;
@@ -131,9 +138,6 @@ void	Interleave(int nInputs, const char *infilenames[], const char *outfilename,
 		outfile.SetClientFormat(clientFormat, NULL);
 		//clientFormat.PrintFormat(stdout, "", "output client");
 
-		unlink(outfilename);
-		outfile.Create(outfilename, kAudioFileAIFFType);
-		outFileCreated = true;
 		outfile.mPtrs = CABufferList::New("writeptrs", clientFormat);
 
 		AudioBufferList &writebufs = outfile.mPtrs->GetModifiableBufferList();
@@ -148,34 +152,34 @@ void	Interleave(int nInputs, const char *infilenames[], const char *outfilename,
 		}
 		
 		while (true) {
-			UInt32 maxPacketsRead = 0;
-			UInt32 npackets;
+			UInt32 maxFramesRead = 0;
+			UInt32 nframes;
 			for (i = 0; i < nInputs; ++i) {
 				file = &infiles[i];
 				file->mPtrs->SetFrom(file->mBuf);
-				npackets = kBufferSizeFrames;
+				nframes = kBufferSizeFrames;
 				AudioBufferList &readbufs = file->mPtrs->GetModifiableBufferList();
-				file->ReadPackets(npackets, &readbufs);
+				file->Read(nframes, &readbufs);
 				//CAShowAudioBufferList(&readbufs, 8, 0);
-				if (npackets > maxPacketsRead)
-					maxPacketsRead = npackets;
-				if (npackets < kBufferSizeFrames)
+				if (nframes > maxFramesRead)
+					maxFramesRead = nframes;
+				if (nframes < kBufferSizeFrames)
 					file->mPtrs->PadWithZeroes(kBufferSizeBytes);
 			}
-			if (maxPacketsRead == 0)
+			if (maxFramesRead == 0)
 				break;
 
-			if (maxPacketsRead < kBufferSizeFrames)
-				outfile.mPtrs->SetNumBytes(maxPacketsRead * sizeof(Float32));
+			if (maxFramesRead < kBufferSizeFrames)
+				outfile.mPtrs->SetNumBytes(maxFramesRead * sizeof(Float32));
 			//CAShowAudioBufferList(&writebufs, 8, 0);
-			outfile.WritePackets(maxPacketsRead, &writebufs);
-			if (maxPacketsRead < kBufferSizeFrames)
+			outfile.Write(maxFramesRead, &writebufs);
+			if (maxFramesRead < kBufferSizeFrames)
 				break;
 		}
 	}
 	catch (...) {
 		if (outFileCreated)
-			outfile.Delete();
+			unlink(outfilename);
 		delete[] infiles;
 		throw;
 	}

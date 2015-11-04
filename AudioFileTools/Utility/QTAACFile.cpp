@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -200,10 +200,15 @@ void	QTAACFile::Open(const char *filename)
 	theAudioTrack = GetMovieIndTrackType(mMovie, 1, SoundMediaType, movieTrackMediaType | movieTrackEnabledOnly);
 	XThrowIf(theAudioTrack == NULL, -1, "movie contains no audio track");
 	
-	// find the tracj's media, and interrogate it for the audio format and magic cookie (decoder config)
+	// find the track's media, and interrogate it for the audio format and magic cookie (decoder config)
 	mMedia = GetTrackMedia(theAudioTrack);
 	XThrowIf(mMedia == NULL, -1, "track contains no media");	
 	GetMP4DecoderConfig(mMedia, mFileDataFormat, &mMagicCookie, &mMagicCookieSize);
+
+	// Fill out the remaining fields of the ASBD by evaluating the magic cookie
+	UInt32	size = sizeof(mFileDataFormat);
+	XThrowIfError(AudioFormatGetProperty(kAudioFormatProperty_ASBDFromESDS, mMagicCookieSize, mMagicCookie, &size, &mFileDataFormat),
+		"couldn't get ASBD from the Magic Cookie");
 
 	// build a vector of times at which packets begin
 	// so later we can randomly access the file by packet number
@@ -353,6 +358,6 @@ void	QTAACFile::ReadPackets(UInt32 &ioNumPackets, AudioBufferList *ioData)
 		XThrowIfError(ReadInputProc(NULL, &ioNumPackets, ioData, NULL, this), "read audio file");
 	else {
 		XThrowIfError(AudioConverterFillComplexBuffer(mConverter, ReadInputProc, this, &ioNumPackets, ioData, NULL),
-			"convert audio packets");
+			"qt convert audio packets");
 	}
 }

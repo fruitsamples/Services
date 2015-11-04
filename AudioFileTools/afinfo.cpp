@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -35,16 +35,33 @@
 			(INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN
 			ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
-#include <AudioToolbox/AudioToolbox.h>
-//#include <Carbon/Carbon.h>
-#include "CAStreamBasicDescription.h"
+/*=============================================================================
+	afinfo.cpp
+	
+=============================================================================*/
 
-using namespace std;
+#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
+	#include <AudioToolbox/AudioToolbox.h>
+#else
+	#include <AudioToolbox.h>
+#endif
+
+#if TARGET_OS_WIN32
+	#include <QTML.h>
+#endif
+
+#include <stdio.h>
+#include "CAStreamBasicDescription.h"
+#include <stdlib.h>
+
+//using namespace std;
 
 int main (int argc, const char * argv[]) 
 {
-	int enc = kCFStringEncodingMacRoman;
+#if TARGET_OS_WIN32
+	InitializeQTML(0L);
+#endif
+	int enc = kCFStringEncodingUTF8;
 	
 	for (int i=1; i<argc; ++i)
 	{
@@ -57,7 +74,6 @@ int main (int argc, const char * argv[])
 		Boolean res;
 		FSRef fsRef;
 		AudioFileTypeID filetype;
-		UInt64 packetCount;
 		CFStringRef filename = CFStringCreateWithCString(NULL, argv[i], enc);
 		if (!filename) continue;
 		
@@ -102,39 +118,90 @@ int main (int argc, const char * argv[])
 		err = AudioFileGetPropertyInfo(afid, kAudioFilePropertyChannelLayout, &propertySize, &writable);
 		if (err) {
 			//fprintf(stderr, "AudioFileGetPropertyInfo kAudioFilePropertyChannelLayout failed for '%s'\n", argv[i]);
-			printf( "   no channel layout. error '%4.4s'\n", (char *)&err);
-			goto Bail1;
+			printf("   no channel layout.\n");
+		} else {
+			
+			acl = (AudioChannelLayout*)calloc(1, propertySize);
+			err = AudioFileGetProperty(afid, kAudioFilePropertyChannelLayout, &propertySize, acl);
+			if (err) {
+				fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyChannelLayout failed for '%s'\n", argv[i]);
+				goto Bail1;
+			}
+			
+			CFStringRef aclname;
+			char aclstr[512];
+			specifierSize = propertySize;
+			propertySize = sizeof(aclname);
+			AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutName, specifierSize, acl, &propertySize, &aclname);
+			if (err) {
+				fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyChannelLayout failed for '%s'\n", argv[i]);
+				goto Bail1;
+			}
+			CFStringGetCString(aclname, aclstr, 512, kCFStringEncodingUTF8);
+			
+			printf("Channel layout: %s\n", aclstr);
 		}
 		
-		acl = (AudioChannelLayout*)calloc(1, propertySize);
-		err = AudioFileGetProperty(afid, kAudioFilePropertyChannelLayout, &propertySize, acl);
+		UInt64 dataByteCount;
+		propertySize = sizeof(dataByteCount);
+		err = AudioFileGetProperty(afid, kAudioFilePropertyAudioDataByteCount, &propertySize, &dataByteCount);
 		if (err) {
-			fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyChannelLayout failed for '%s'\n", argv[i]);
-			goto Bail1;
+			fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyAudioDataByteCount failed for '%s'\n", argv[i]);
+		} else {
+			printf("audio bytes: %llu\n", dataByteCount);
 		}
 		
-		CFStringRef aclname;
-		char aclstr[512];
-		specifierSize = propertySize;
-		propertySize = sizeof(aclname);
-		AudioFormatGetProperty(kAudioFormatProperty_ChannelLayoutName, specifierSize, acl, &propertySize, &aclname);
-		if (err) {
-			fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyChannelLayout failed for '%s'\n", argv[i]);
-			goto Bail1;
-		}
-		CFStringGetCString(aclname, aclstr, 512, kCFStringEncodingUTF8);
-		
-		printf("Channel layout: %s\n", aclstr);
-		
-		propertySize = sizeof(packetCount);
-		err = AudioFileGetProperty(afid, kAudioFilePropertyAudioDataPacketCount, &propertySize, &packetCount);
+		UInt64 dataPacketCount;
+		UInt64 totalFrames;
+		totalFrames = 0;
+		propertySize = sizeof(dataPacketCount);
+		err = AudioFileGetProperty(afid, kAudioFilePropertyAudioDataPacketCount, &propertySize, &dataPacketCount);
 		if (err) {
 			fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyAudioDataPacketCount failed for '%s'\n", argv[i]);
-			goto Bail1;
+		} else {
+			printf("audio packets: %llu\n", dataPacketCount);
+			if (asbd.mFramesPerPacket)
+				totalFrames = asbd.mFramesPerPacket * dataPacketCount;
 		}
 		
-		printf("Packet count:   %qd\n", packetCount);
-						
+		AudioFilePacketTableInfo pti;
+		propertySize = sizeof(pti);
+		err = AudioFileGetProperty(afid, kAudioFilePropertyPacketTableInfo, &propertySize, &pti);
+		if (err == noErr) {
+			totalFrames = pti.mNumberValidFrames;
+			printf("audio %qd valid frames + %ld priming + %ld remainder = %qd\n", pti.mNumberValidFrames, pti.mPrimingFrames, pti.mRemainderFrames, pti.mNumberValidFrames + pti.mPrimingFrames + pti.mRemainderFrames);
+		}
+		
+		if (totalFrames != 0)
+			printf("duration: %.4f seconds\n", (double)totalFrames / (double)asbd.mSampleRate );
+
+		UInt32 maxPacketSize;
+		propertySize = sizeof(maxPacketSize);
+		err = AudioFileGetProperty(afid, kAudioFilePropertyMaximumPacketSize, &propertySize, &maxPacketSize);
+		if (err) {
+			fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyMaximumPacketSize failed for '%s'\n", argv[i]);
+		} else {
+			printf("maximum packet size: %lu\n", maxPacketSize);
+		}
+		
+		UInt64 dataOffset;
+		propertySize = sizeof(dataOffset);
+		err = AudioFileGetProperty(afid, kAudioFilePropertyDataOffset, &propertySize, &dataOffset);
+		if (err) {
+			fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyDataOffset failed for '%s'\n", argv[i]);
+		} else {
+			printf("audio data file offset: %llu\n", dataOffset);
+		}
+		
+		UInt32 isOptimized;
+		propertySize = sizeof(isOptimized);
+		err = AudioFileGetProperty(afid, kAudioFilePropertyIsOptimized, &propertySize, &isOptimized);
+		if (err) {
+			fprintf(stderr, "AudioFileGetProperty kAudioFilePropertyIsOptimized failed for '%s'\n", argv[i]);
+		} else {
+			printf(isOptimized ? "optimized\n" : "not optimized\n");
+		}
+								
 		Bail1:
 		AudioFileClose(afid);
 		Bail2:

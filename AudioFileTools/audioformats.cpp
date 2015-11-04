@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -41,6 +41,12 @@
 =============================================================================*/
 
 #include "CAAudioFileFormats.h"
+#include <stdlib.h>
+#include "AFToolsCommon.h"
+
+#if TARGET_OS_WIN32
+	#include <QTML.h>
+#endif
 
 // This program interrogates the AudioFile and AudioFormat API's for information
 // useful in constructing test scripts. It might also be useful as an example
@@ -136,6 +142,10 @@ void	PrintCompatibleChannelLayouts()
 
 int main(int argc, const char *argv[])
 {
+	#if TARGET_OS_WIN32
+		InitializeQTML(0L);
+	#endif
+
 	PrintFileFormats();
 	printf("#######################\n");
 	PrintCompatibleChannelLayouts();

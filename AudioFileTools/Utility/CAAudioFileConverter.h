@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -43,10 +43,20 @@
 #ifndef __CAAudioFileConverter_h__
 #define __CAAudioFileConverter_h__
 
-#include <AudioToolbox/AudioToolbox.h>
+/*
+	Compile options:
+		CAAUDIOFILE_PROFILE
+*/
+
+#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
+	#include <AudioToolbox/AudioToolbox.h>
+#else
+	#include <AudioToolbox.h>
+#endif
 #include "CAStreamBasicDescription.h"
 #include "CABufferList.h"
 #include "CAHostTimeBase.h"
+#include "CAAudioChannelLayout.h"
 #include "CAAudioFile.h"
 
 class CAAudioFileConverter {
@@ -54,8 +64,10 @@ public:
 	// options for ConversionParameters.flags
 	enum {
 		kOpt_OverwriteOutputFile	= 1,
-		kOpt_Profile				= 2,		// collect performance profiling info
-		kOpt_Verbose				= 4
+		kOpt_Verbose				= 2,
+		kOpt_CAFTag					= 4,				// tags encoded CAF files with info about the source file
+														// or restores based on it when decoding
+		kOpt_NoSanitizeOutputFormat = 8					// used internally
 	};
 	
 	struct ConversionParameters {
@@ -74,11 +86,14 @@ public:
 														// directory as input file, name generated from
 														// its name with the appropriate filename extension
 														// (fails if file already exists)
-			OSType					fileType;
+			AudioFileTypeID			fileType;
 			CAStreamBasicDescription dataFormat;
 			int						channels;			// -1 for same number of channels as input
 			SInt32					bitRate;			// -1 for default
-			SInt32					quality;			// 0-127, -1 for default
+			SInt32					codecQuality;		// 0-127, -1 for default
+			SInt32					srcQuality;			// 0-127, -1 for default
+			SInt32					strategy;			// 0-2, -1 for default
+			SInt32					primeMethod;		// 0-2, -1 for default
 			AudioChannelLayoutTag	channelLayoutTag;	// 0 for default
 		}						output;
 		
@@ -100,32 +115,41 @@ public:
 	const CAAudioFile &	InputFile() { return mSrcFile; }
 	const CAAudioFile & OutputFile() { return mDestFile; }
 	
-	// performance
-#if CAAUDIOFILE_PROFILE
-	UInt64			TicksInDecode() { return mSrcFile.TicksInConverter(); }
-	UInt64			TicksInEncode() { return mDestFile.TicksInConverter(); }
-	UInt64			TicksInRead() { return mSrcFile.TicksInIO(); }
-	UInt64			TicksInWrite() { return mDestFile.TicksInIO(); }
-#endif
+	// customization
+	virtual void	PrepareConversion() { }
+	virtual void	OpenInputFile();
+	virtual void	OpenOutputFile(const CAStreamBasicDescription &srcFormat, const CAStreamBasicDescription &destFormat, FSRef &destFSRef, CAAudioChannelLayout &destFileLayout);
+	virtual void	ComputeReadSize(const CAStreamBasicDescription &srcFormat, const CAStreamBasicDescription &destFormat, UInt32 &bytesToRead, UInt32 &framesToRead) { }
+	virtual void	BeginConversion() { }
+	virtual void	EndConversion() { }
+	virtual bool	ShouldTerminateConversion() { return false; }
+
+	bool	TaggedEncodingToCAF() const {
+				return (mParams.flags & kOpt_CAFTag) && mDestFormat.mFormatID != kAudioFormatLinearPCM && mParams.output.fileType == kAudioFileCAFType;
+			}
+	bool	TaggedDecodingFromCAF() const {
+				return (mParams.flags & kOpt_CAFTag) && mSrcFormat.mFormatID != kAudioFormatLinearPCM;
+					// don't know for sure that the source file is CAF...
+			}
 	
-private:
+	void	WriteCAFInfo();
+	void	ReadCAFInfo();
+	
+protected:
 	void						PrintFormats(const CAAudioChannelLayout *origSrcFileLayout);
 
-	UInt64						CurrentTime() {
-									if (mParams->flags & kOpt_Profile)
-										return CAHostTimeBase::GetCurrentTimeInNanos();
-									return 0;
-								}
-	
-	const ConversionParameters *mParams;
-	AudioConverterRef			mConverter;
+	ConversionParameters		mParams;
 	CAAudioFile					mSrcFile;
 	CAAudioFile					mDestFile;
+	CAStreamBasicDescription	mSrcFormat;		// valid after OpenInputFile
+	CAStreamBasicDescription	mDestFormat;	// valid after OpenOutputFile
 	
+private:
 	CABufferList *				mReadBuffer;
 	CABufferList *				mReadPtrs;
+
 protected:
-	char						mOutName[256];
+	char						mOutName[PATH_MAX];
 };
 
 #endif // __CAAudioFileConverter_h__

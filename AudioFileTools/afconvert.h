@@ -36,74 +36,59 @@
 			ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /*=============================================================================
-	QTAACFile.h
+	afconvert.h
 	
 =============================================================================*/
 
-#ifndef __QTAACFile_h__
-#define __QTAACFile_h__
+#ifndef __afconvert_h__
+#define __afconvert_h__
 
-#include <QuickTime/QuickTime.h>
-#include <AudioToolbox/AudioConverter.h>
-#include <AudioToolbox/AudioFormat.h>
-#include <vector>
-#include "CAStreamBasicDescription.h"
-#include "CAAudioChannelLayout.h"
+#include "CAAudioFileConverter.h"
 
-/*
-	This class is a stripped-down analogue to CAAudioFile, designed solely for reading AAC audio
-	tracks from QuickTime/MP4 files.
-	
-	Throws CAXException's on errors.
-*/
-class QTAACFile {
+class AFConvertTool {
 public:
-	QTAACFile();
-	~QTAACFile();
-
-	void		Open(const char *filePath);
-	void		Close();
-
-	void		SetClientFormat(const CAStreamBasicDescription &dataFormat);
-					// set the PCM format to which the movie's audio will be decoded
-
-	OSStatus	SetConverterProperty(		AudioConverterPropertyID	inPropertyID,
-											UInt32						inPropertyDataSize,
-											const void*					inPropertyData,
-											bool						inCanFail);
-
-	void		ReadPackets(UInt32 &ioNumPackets, AudioBufferList *ioData);
-					// read packets from the audio file in the client format
-					
-private:
-	void	CloseConverter();
-	void	UpdateClientMaxPacketSize();
-
-	static OSStatus ReadInputProc(		AudioConverterRef				inAudioConverter,
-										UInt32*							ioNumberDataPackets,
-										AudioBufferList*				ioData,
-										AudioStreamPacketDescription**	outDataPacketDescription,
-										void*							inUserData);	
-
-private:
-	typedef std::vector<TimeValue> TimeValueList;
+	AFConvertTool() :
+		mAFConverter(NULL),
+		mParams(NULL)
+		{ }
 	
-	SInt16							mMovieResFile;
-	Movie							mMovie;
-	Media							mMedia;
-	Handle							mPacketHandle;
-	UInt32							mMagicCookieSize;
-	char *							mMagicCookie;
-	TimeValueList					mPacketTimes;
-	UInt32							mNumberPackets;		// in file's format
-	UInt32							mPacketMark;		// location in file, in file's format
-		
-	CAStreamBasicDescription		mFileDataFormat;
-	CAStreamBasicDescription		mClientDataFormat;
-	AudioConverterRef				mConverter;
-	UInt32							mFileMaxPacketSize;
-	UInt32							mClientMaxPacketSize;
-	AudioStreamPacketDescription	mPacketDescription;
+	virtual ~AFConvertTool() {
+		delete mAFConverter;
+		delete mParams;
+	}
+	
+	
+	int				main(int argc, const char *argv[]);
+	virtual void	Init() {		// called on entry to main
+		mParams = new CAAudioFileConverter::ConversionParameters;
+		mAFConverter = new CAAudioFileConverter;
+	}
+	
+	virtual bool	ParseOtherOption(const char *argv[], int &argIndex) { return false; }
+	virtual void	Success() { }	// called after successful conversion
+
+	void			usage();
+	virtual void	ExtraUsageOptions() { }
+	void			MissingArgument() {
+		fprintf(stderr, "missing argument\n\n");
+		usage();
+	}
+	OSType Parse4CharCode(const char *arg, const char *name);
+
+	int	ParseInt(const char *arg, const char *name)
+	{
+		int x;
+		if (sscanf(arg, "%d", &x) != 1) {
+			fprintf(stderr, "invalid integer argument for %s: '%s'\n\n", name, arg);
+			usage();
+		}
+		return x;
+	}
+
+
+	
+	CAAudioFileConverter *						mAFConverter;
+	CAAudioFileConverter::ConversionParameters	*mParams;
 };
 
-#endif // __QTAACFile_h__
+#endif // __afconvert_h__

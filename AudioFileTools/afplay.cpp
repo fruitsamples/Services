@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -42,7 +42,13 @@
 
 #include "CAChannelMappingPlayer.h"
 #include "CAXException.h"
-#include <unistd.h>
+
+#if TARGET_OS_MAC
+	#include <unistd.h>
+#else
+	#include <QTML.h>
+	#include "CAWindows.h"
+#endif
 
 static void usage()
 {
@@ -52,28 +58,55 @@ static void usage()
 			"Options: (may appear before or after arguments)\n"
 			"  {-a --all}\n"
 			"    for files with >2 channels, play each pair of channels in succession\n"
-			"  {-f --frame}\n"
+			"  {-f --frame} FRAME\n"
 			"    starting sample frame number\n"
+			"  {-s --seconds} START_SECONDS END_SECONDS\n"
+			"    segment of file to play, in seconds\n"
+#if !TARGET_OS_WIN32
 			, getprogname());
+#else
+			, "afplay");
+#endif
 	exit(1);
 }
 
-static void Play(CAChannelMappingPlayer &player)
+static void Play(CAChannelMappingPlayer &player, SInt64 startFrame, SInt64 endFrame)
 {
+	CAAudioFile &file = player.GetFile();
+	if (startFrame < 0) {
+		startFrame = 0;
+	}
+	if (endFrame <= 0) {
+		SInt64 numFrames = SInt64(file.GetNumberFrames() * file.GetClientDataFormat().mSampleRate / file.GetFileDataFormat().mSampleRate);
+		endFrame = numFrames;
+	}
 	player.Start();
 	while (true) {
-		if (player.GetCurrentPosition() >= 1.0)
+		SInt64 pos = player.GetCurrentFrame();
+		//file.Tell();
+		if (pos >= endFrame)
 			break;
 		usleep(250000);	// 250 ms
 	}
 	player.Stop();
 }
 
+void	MissingArgument()
+{
+	fprintf(stderr, "Missing argument\n");
+	usage();
+}
+
 int main(int argc, const char *argv[])
 {
 	const char *fileToPlay = NULL;
 	bool playallpairs = false;
-	SInt64 startFrame = 0;
+	double startSeconds = -1, endSeconds = -1;
+	SInt64 startFrame = 0, endFrame = 0;
+
+	#if TARGET_OS_WIN32
+		InitializeQTML(0L);
+	#endif
 
 	for (int i = 1; i < argc; ++i) {
 		const char *arg = argv[i];
@@ -88,9 +121,19 @@ int main(int argc, const char *argv[])
 			if (arg[0] == 'a' || !strcmp(arg, "-all"))
 				playallpairs = true;
 			else if (arg[0] == 'f' || !strcmp(arg, "-frame")) {
-				i += 1;
+				if (++i == argc)
+					MissingArgument();
 				arg = argv[i];
 				sscanf(arg, "%qd", &startFrame);
+			} else if (arg[0] == 's' || !strcmp(arg, "-seconds")) {
+				if (++i == argc)
+					MissingArgument();
+				arg = argv[i];
+				sscanf(arg, "%lf", &startSeconds);
+				if (i + 1 < argc && argv[i+1][0] != '-') {
+					arg = argv[++i];
+					sscanf(arg, "%lf", &endSeconds);
+				}
 			} else {
 				fprintf(stderr, "unknown argument: %s\n\n", arg - 1);
 				usage();
@@ -100,17 +143,26 @@ int main(int argc, const char *argv[])
 	
 	if (fileToPlay == NULL)
 		usage();
-	
+
 	try {
 		const int kNumberBuffers = 3;
 		const unsigned kBufferSize = 0x8000;
-		CAAudioFile file;
-		file.Open(fileToPlay);
+		FSRef playFSRef;
+		XThrowIfError(FSPathMakeRef((UInt8 *)fileToPlay, &playFSRef, NULL), "Input file not found");
 		CAChannelMappingPlayer player(kNumberBuffers, kBufferSize);
-		player.SetFile(file.GetAudioFileID());
+		player.SetFile(playFSRef);
+		CAAudioFile &file = player.GetFile();
 		CAChannelMapper *mapper = player.GetMapper();
 		if (playallpairs && mapper == NULL)
 			playallpairs = false;
+		
+		if (startSeconds >= 0) {
+			Float64 sr = file.GetClientDataFormat().mSampleRate;
+			startFrame = SInt64(startSeconds * sr);
+			if (endSeconds > startSeconds)
+				endFrame = SInt64(endSeconds * sr);
+			printf("secs: %.1f-%.1f  frames: %qd-%qd\n", startSeconds, endSeconds, startFrame, endFrame);
+		}
 		
 		if (playallpairs) {
 			int nChannelsInFile = file.GetFileDataFormat().NumberChannels();
@@ -120,11 +172,11 @@ int main(int argc, const char *argv[])
 				mapper->ConnectChannelToChannel(channel, 0);
 				mapper->ConnectChannelToChannel(channel+1, 1);
 				player.SetCurrentPosition(0.);
-				Play(player);
+				Play(player, startFrame, endFrame);
 			}
 		} else {
-			player.GetFile().SeekToFrame(startFrame);
-			Play(player);
+			file.Seek(startFrame);
+			Play(player, startFrame, endFrame);
 		}
 	}
 	catch (CAXException &e) {

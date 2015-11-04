@@ -1,4 +1,4 @@
-/*	Copyright: 	© Copyright 2004 Apple Computer, Inc. All rights reserved.
+/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 			("Apple") in consideration of your agreement to the following terms, and your
@@ -36,7 +36,7 @@
 			ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 /*=============================================================================
-	main.cpp
+	afconvert.cpp
 	
 =============================================================================*/
 
@@ -46,76 +46,49 @@
 	command-line tool to convert an audio file to another format
 */
 
+#include "afconvert.h"
 #include <stdio.h>
-#include <libgen.h>
 #include <vector>
-#include <CoreServices/CoreServices.h>
-#include <AudioToolbox/AudioToolbox.h>
+#if !defined(__COREAUDIO_USE_FLAT_INCLUDES__)
+	#include <CoreServices/CoreServices.h>
+	#include <AudioToolbox/AudioToolbox.h>
+#else
+	#include <CoreServices.h>
+	#include <AudioToolbox.h>
+#endif
 #include "CAChannelLayouts.h"
 
 #include "CAAudioFileConverter.h"
 #include "CAXException.h"
 #include "CAAudioFileFormats.h"
+#include "AFToolsCommon.h"
+#if !TARGET_OS_MAC
+	#include <QTML.h>
+	#include "CAWindows.h"
+#endif
 
 
-static void usage()
+void AFConvertTool::usage()
 {
-	CAAudioFileFormats *theFileFormats = CAAudioFileFormats::Instance();
-
 	fprintf(stderr,
 			"Usage:\n"
 			"%s [option...] input_file [output_file]\n\n"
 			"Options: (may appear before or after arguments)\n"
 			"    { -f | --file } file_format:\n",
+#if !TARGET_OS_WIN32
 			getprogname());
-
-	for (int i = 0; i < theFileFormats->mNumFileFormats; ++i) {
-		CAAudioFileFormats::FileFormatInfo *ffi = &theFileFormats->mFileFormats[i];
-		char buf[20];
-		char fmtName[256] = { 0 };
-		if (ffi->mFileTypeName)
-			CFStringGetCString(ffi->mFileTypeName, fmtName, sizeof(fmtName), kCFStringEncodingASCII);
-		fprintf(stderr, "        '%s' = %s\n", OSTypeToStr(buf, ffi->mFileTypeID), fmtName);
-		fprintf(stderr, "                   data_formats: ");
-		
-		int count = 0;
-		for (int j = 0; j < ffi->mNumDataFormats; ++j) {
-			CAAudioFileFormats::DataFormatInfo *dfi = &ffi->mDataFormats[j];
-			if (dfi->mFormatID == kAudioFormatLinearPCM) {
-				for (int k = 0; k < dfi->mNumVariants; ++k) {
-					if (++count == 6) {
-						fprintf(stderr, "\n                                 ");
-						count = 0;
-					}
-					AudioStreamBasicDescription *asbd = &dfi->mVariants[k];
-					if (asbd->mFormatFlags & ~(kAudioFormatFlagIsPacked | kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsFloat))
-						fprintf(stderr, "(%08lx/%ld) ", asbd->mFormatFlags, asbd->mBitsPerChannel);
-					else {
-						fprintf(stderr, "%s",
-							(asbd->mFormatFlags & kAudioFormatFlagIsBigEndian) ? "BE" : "LE");
-						if (asbd->mFormatFlags & kAudioFormatFlagIsFloat)
-							fprintf(stderr, "F");
-						else
-							fprintf(stderr, "%sI",
-								(asbd->mFormatFlags & kAudioFormatFlagIsSignedInteger) ? "" : "U");
-						fprintf(stderr, "%ld ", asbd->mBitsPerChannel);
-					}
-				}
-			} else {
-				if (++count == 6) {
-					fprintf(stderr, "\n                                 ");
-					count = 0;
-				}
-				fprintf(stderr, "'%s' ", OSTypeToStr(buf, dfi->mFormatID));
-			}
-		}
-		fprintf(stderr, "\n");
-	}
+#else
+			"afconvert");
+#endif
+	PrintAudioFileTypesAndFormats(stderr);
 	fprintf(stderr,
-			"    { -d | --data } data_format[@sample_rate_hz]:\n"
+			"    { -d | --data } data_format[@sample_rate_hz][/format_flags][#frames_per_packet] :\n"
 			"        [-][BE|LE]{F|[U]I}{8|16|24|32|64}          (PCM)\n"
-			"            e.g. -BEI16 -F32@44100\n"
+			"            e.g.   BEI16   F32@44100\n"
 			"        or a data format appropriate to file format, as above\n"
+			"        format_flags: hex digits, e.g. '80'\n"
+			"        bitdepth on non-PCM formats can be specified, e.g.: alac-24\n"
+			"        Frames per packet can be specified for some encoders, e.g.: samr#12\n"
 			"    { -c | --channels } number_of_channels\n"
 			"        add/remove channels without regard to order\n"
 			"    { -l | --channellayout } layout_tag\n"
@@ -125,23 +98,32 @@ static void usage()
 			"          applies to the input file, the second to the output file\n"
 			"    { -b | --bitrate } bit_rate_bps\n"
 			"         e.g. 128000\n"
-			"    { -q | --quality } quality\n"
-			"        quality: 0-127\n"
+			"    { -q | --quality } codec_quality\n"
+			"        codec_quality: 0-127\n"
+			"    { -r | --src-quality } src_quality\n"
+			"        src_quality (sample rate converter quality): 0-127\n"
 			"    { -v | --verbose }\n"
 			"        print progress verbosely\n"
-			"    { -p | --profile }\n"
-			"        collect and print performance profile\n"
+			"    { -s | --strategy } strategy\n"
+			"        bitrate strategy for encoded file\n"
+			"        0 for CBR, 1 for ABR, 2 for VBR\n"
+			"    { -t | --tag }\n"
+			"        If encoding to CAF, store the source file's format and name in a user chunk.\n"
+			"        If decoding from CAF, use the destination format and filename found in a user chunk.\n"
+			"    --prime-method method\n"
+			"        decode priming method (see AudioConverter.h)\n"
 			);
+	ExtraUsageOptions();
 	exit(1);
 }
 
-static void	MissingArgument()
+void	Warning(const char *s, OSStatus error)
 {
-	fprintf(stderr, "missing argument\n\n");
-	usage();
+	char buf[256];
+	fprintf(stderr, "*** warning: %s (%s)\n", s, CAXException::FormatError(buf, error));
 }
 
-static OSType Parse4CharCode(const char *arg, const char *name)
+OSType AFConvertTool::Parse4CharCode(const char *arg, const char *name)
 {
 	OSType t;
 	StrToOSType(arg, t);
@@ -152,148 +134,12 @@ static OSType Parse4CharCode(const char *arg, const char *name)
 	return t;
 }
 
-static int	ParseInt(const char *arg, const char *name)
-{
-	int x;
-	if (sscanf(arg, "%d", &x) != 1) {
-		fprintf(stderr, "invalid integer argument for %s: '%s'\n\n", name, arg);
-		usage();
-	}
-	return x;
-}
 
-/*
-struct AudioStreamBasicDescription
+int		AFConvertTool::main(int argc, const char * argv[])
 {
-	Float64	mSampleRate;		//	the native sample rate of the audio stream
-	UInt32	mFormatID;			//	the specific encoding type of audio stream
-	UInt32	mFormatFlags;		//	flags specific to each format
-	UInt32	mBytesPerPacket;	//	the number of bytes in a packet
-	UInt32	mFramesPerPacket;	//	the number of frames in each packet
-	UInt32	mBytesPerFrame;		//	the number of bytes in a frame
-	UInt32	mChannelsPerFrame;	//	the number of channels in each frame
-	UInt32	mBitsPerChannel;	//	the number of bits in each channel
-	UInt32	mReserved;			//	reserved, pads the structure out to force 8 byte alignment
-};
-*/
-static bool ParseStreamDescription(const char *inTextDesc, CAStreamBasicDescription &fmt)
-{
-	const char *p = inTextDesc;
-	int bitdepth = 0;
-	CAAudioFileFormats *theFileFormats = CAAudioFileFormats::Instance();
+	Init();
 	
-	memset(&fmt, 0, sizeof(fmt));
-	OSType formatID;
-	int x = StrToOSType(p, formatID);
-	if (theFileFormats->IsKnownDataFormat(formatID)) {
-		p += x;
-		fmt.mFormatID = formatID;
-	}
-	
-	if (fmt.mFormatID == 0) {
-		// unknown format, assume LPCM
-		if (p[0] == '-')	// previously we required a leading dash on PCM formats
-			// pcm
-			++p;
-		fmt.mFormatID = kAudioFormatLinearPCM;
-		fmt.mFormatFlags = kAudioFormatFlagIsPacked;
-		fmt.mFramesPerPacket = 1;
-		fmt.mChannelsPerFrame = 1;
-		bool isUnsigned = false;
-	
-		if (p[0] == 'B' && p[1] == 'E') {
-			fmt.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
-			p += 2;
-		} else if (p[0] == 'L' && p[1] == 'E') {
-			p += 2;
-		} else {
-			// default is native-endian
-#if TARGET_RT_BIG_ENDIAN
-			fmt.mFormatFlags |= kLinearPCMFormatFlagIsBigEndian;
-#endif
-		}
-		if (p[0] == 'F') {
-			fmt.mFormatFlags |= kAudioFormatFlagIsFloat;
-			++p;
-		} else {
-			if (p[0] == 'U') {
-				isUnsigned = true;
-				++p;
-			}
-			if (p[0] == 'I')
-				++p;
-			else {
-				fprintf(stderr, "The format '%s' is unknown or an unparseable PCM format specifier\n", inTextDesc);
-				goto Bail;
-			}
-		}
-		
-		while (isdigit(*p))
-			bitdepth = 10 * bitdepth + *p++ - '0';
-		if (fmt.mFormatFlags & kAudioFormatFlagIsFloat) {
-			if (bitdepth != 32 && bitdepth != 64) {
-				fprintf(stderr, "Valid float bitdepths are 32 and 64\n");
-				goto Bail;
-			}
-		} else {
-			if (bitdepth != 8 && bitdepth != 16 && bitdepth != 24 && bitdepth != 32) {
-				fprintf(stderr, "Valid integer bitdepths are 8, 16, 24, and 32\n");
-				goto Bail;
-			}
-			if (!isUnsigned)
-				fmt.mFormatFlags |= kAudioFormatFlagIsSignedInteger;
-		}
-		fmt.mBitsPerChannel = bitdepth;
-		fmt.mBytesPerPacket = fmt.mBytesPerFrame = bitdepth / 8;
-	}
-	if (*p == '@') {
-		++p;
-		while (isdigit(*p))
-			fmt.mSampleRate = 10 * fmt.mSampleRate + (*p++ - '0');
-	}
-	if (*p != '\0')
-		goto Bail;
-	return true;
-
-Bail:
-	fprintf(stderr, "Invalid format string: %s\n", inTextDesc);
-	fprintf(stderr, "Syntax of format strings is: [-][BE|LE]{F|I|UI}{8|16|24|32|64}[@sample_rate_hz]\n");
-	return false;
-}
-
-// for formatting performance results
-void	FormatAsText(const CAStreamBasicDescription &fmt, char *s)
-{
-	if (!fmt.IsPCM()) {
-		char buf[20];
-		sprintf(s, "%s@%.0f", OSTypeToStr(buf, fmt.mFormatID), fmt.mSampleRate);
-	} else {
-		sprintf(s, "%s%s%ld@%.0f", 
-			(fmt.mFormatFlags & kLinearPCMFormatFlagIsBigEndian) ? "BE" : "LE",
-			(fmt.mFormatFlags & kLinearPCMFormatFlagIsFloat) ? "F" :
-				((fmt.mFormatFlags & kLinearPCMFormatFlagIsSignedInteger) ? "I" : "UI"),
-			fmt.mBitsPerChannel,
-			fmt.mSampleRate
-			);
-	}
-}
-
-void PerfResult(const char *toolname, int group, const char *testname, double value, const char *units, const char *fmt="%.3f")
-{
-	printf("<result tool='%s' group='%d' test='%s' value='", toolname, group, testname);
-	printf(fmt, value);
-	printf("' units='%s' />\n", units);
-}
-
-void	Warning(const char *s, OSStatus error)
-{
-	char buf[256];
-	fprintf(stderr, "*** warning: %s (%s)\n", s, CAXException::FormatError(buf, error));
-}
-
-int main(int argc, const char * argv[])
-{
-	CAAudioFileConverter::ConversionParameters params;
+	CAAudioFileConverter::ConversionParameters &params = *mParams;
 	bool gotOutDataFormat = false;
 	
 	CAXException::SetWarningHandler(Warning);
@@ -324,7 +170,10 @@ int main(int argc, const char * argv[])
 				params.output.bitRate = ParseInt(argv[i], "-b | --bitrate");
 			} else if (arg[0] == 'q' || !strcmp(arg, "-quality")) {
 				if (++i == argc) MissingArgument();
-				params.output.quality = ParseInt(argv[i], "-q | --quality");
+				params.output.codecQuality = ParseInt(argv[i], "-q | --quality");
+			} else if (arg[0] == 'r' || !strcmp(arg, "-src-quality")) {
+				if (++i == argc) MissingArgument();
+				params.output.srcQuality = ParseInt(argv[i], "-r | --src-quality");
 			} else if (arg[0] == 'l' || !strcmp(arg, "-channellayout")) {
 				if (++i == argc) MissingArgument();
 				UInt32 tag = CAChannelLayouts::StringToConstant(argv[i]);
@@ -344,11 +193,17 @@ int main(int argc, const char * argv[])
 			} else if (arg[0] == 'c' || !strcmp(arg, "-channels")) {
 				if (++i == argc) MissingArgument();
 				params.output.channels = ParseInt(argv[i], "-c | --channels");
-			} else if (arg[0] == 'p' || !strcmp(arg, "-profile")) {
-				params.flags |= CAAudioFileConverter::kOpt_Profile | CAAudioFileConverter::kOpt_Verbose;
 			} else if (arg[0] == 'v' || !strcmp(arg, "-verbose")) {
 				params.flags |= CAAudioFileConverter::kOpt_Verbose;
-			} else {
+			} else if (arg[0] == 's' || !strcmp(arg, "-strategy")) {
+				if (++i == argc) MissingArgument();
+				params.output.strategy = ParseInt(argv[i], "-s | --strategy");
+			} else if (arg[0] == 't' || !strcmp(arg, "-tag")) {
+				params.flags |= CAAudioFileConverter::kOpt_CAFTag;
+			} else if (!strcmp(arg, "-prime-method")) {
+				if (++i == argc) MissingArgument();
+				params.output.primeMethod = ParseInt(argv[i], "-p | --prime-method");
+			} else if (!ParseOtherOption(argv, i)) {
 				fprintf(stderr, "unknown argument: %s\n\n", arg - 1);
 				usage();
 			}
@@ -358,65 +213,29 @@ int main(int argc, const char * argv[])
 		fprintf(stderr, "no input file specified\n\n");
 		usage();
 	}
-
-	if (!gotOutDataFormat) {
-		if (params.output.fileType == 0) {
-			fprintf(stderr, "no output file or data format specified\n\n");
-			usage();
-		}
-		if (!CAAudioFileFormats::Instance()->InferDataFormatFromFileFormat(params.output.fileType, params.output.dataFormat)) {
-			fprintf(stderr, "Couldn't infer data format from file format\n\n");
-			usage();
-		}
-	} else if (params.output.fileType == 0) {
-		if (!CAAudioFileFormats::Instance()->InferFileFormatFromDataFormat(params.output.dataFormat, params.output.fileType)) {
-			params.output.dataFormat.PrintFormat(stderr, "", "Couldn't infer file format from data format");
-			usage();
+	
+	if (!(params.flags & CAAudioFileConverter::kOpt_CAFTag)) {
+		if (!gotOutDataFormat) {
+			if (params.output.fileType == 0) {
+				fprintf(stderr, "no output file or data format specified\n\n");
+				usage();
+			}
+			if (!CAAudioFileFormats::Instance()->InferDataFormatFromFileFormat(params.output.fileType, params.output.dataFormat)) {
+				fprintf(stderr, "Couldn't infer data format from file format\n\n");
+				usage();
+			}
+		} else if (params.output.fileType == 0) {
+			CAAudioFileFormats *formats = CAAudioFileFormats::Instance();
+			if (!formats->InferFileFormatFromFilename(params.output.filePath, params.output.fileType) && !formats->InferFileFormatFromDataFormat(params.output.dataFormat, params.output.fileType)) {
+				params.output.dataFormat.PrintFormat(stderr, "", "Couldn't infer file format from data format");
+				usage();
+			}
 		}
 	}
 
 	try {
-		CAAudioFileConverter conv;
-		conv.ConvertFile(params);
-#if CAAUDIOFILE_PROFILE
-		if (params.flags & CAAudioFileConverter::kOpt_Profile) {
-			double decodeTime = CAHostTimeBase::ConvertToNanos(conv.TicksInDecode()) / 1.0e9;
-			double encodeTime = CAHostTimeBase::ConvertToNanos(conv.TicksInEncode()) / 1.0e9;
-			double readTime = CAHostTimeBase::ConvertToNanos(conv.TicksInRead()) / 1.0e9;
-			double writeTime = CAHostTimeBase::ConvertToNanos(conv.TicksInWrite()) / 1.0e9;
-			const CAAudioFile &infile = conv.InputFile();
-			const CAAudioFile &outfile = conv.OutputFile();
-			const CAStreamBasicDescription &infmt = infile.GetFileDataFormat();
-			const CAStreamBasicDescription &outfmt = outfile.GetFileDataFormat();
-			bool encoding = !outfmt.IsPCM();
-			bool decoding = !infmt.IsPCM();
-			
-			printf("Decode:        %9.3f sec\n", decodeTime);
-			printf("Encode:        %9.3f sec\n", encodeTime);
-			printf("File read:     %9.3f sec\n", readTime);
-			printf("File write:    %9.3f sec\n", writeTime);
-			if (encoding ^ decoding) {
-				double fileTimeSecs, codecTime;
-				char infmtstr[64], outfmtstr[64];
-				FormatAsText(infmt, infmtstr);
-				FormatAsText(outfmt, outfmtstr);
-				
-				if (encoding) {
-					fileTimeSecs = infile.GetNumberPackets() / infmt.mSampleRate;
-					codecTime = encodeTime;
-				} else {
-					fileTimeSecs = outfile.GetNumberPackets() / outfmt.mSampleRate;
-					codecTime = decodeTime;
-				}
-				printf("File duration: %9.3f sec\n", fileTimeSecs);
-				
-				char testname[64];
-				sprintf(testname, "%ldch %s=>%s", infmt.mChannelsPerFrame, infmtstr, outfmtstr);
-				
-				PerfResult("AudioFileConverter", 1, testname, 100. * codecTime / fileTimeSecs, "%realtime");
-			}
-		}
-#endif
+		mAFConverter->ConvertFile(params);
+		Success();
 	}
 	catch (CAXException &e) {
 		char buf[256];
