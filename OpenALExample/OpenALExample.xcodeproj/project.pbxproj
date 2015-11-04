@@ -23,22 +23,6 @@
 			isa = PBXBuildFile;
 			fileRef = 8AFA6887084D49A80005575E;
 		};
-		8AFA6892084D49F20005575E = {
-			isa = PBXBuildFile;
-			fileRef = 8AFA6884084D49A80005575E;
-		};
-		8AFA6893084D49F20005575E = {
-			isa = PBXBuildFile;
-			fileRef = 8AFA6885084D49A80005575E;
-		};
-		8AFA6894084D49F20005575E = {
-			isa = PBXBuildFile;
-			fileRef = 8AFA6886084D49A80005575E;
-		};
-		8AFA6895084D49F20005575E = {
-			isa = PBXBuildFile;
-			fileRef = 8AFA6887084D49A80005575E;
-		};
 		8B37C6D80818740A00B0F810 = {
 			isa = PBXBuildFile;
 			fileRef = 8B37C6D70818740A00B0F810;
@@ -92,49 +76,6 @@
 			fileRef = 1058C7A1FEA54F0111CA2CBB;
 		};
 /* End PBXBuildFile section */
-
-/* Begin PBXBuildStyle section */
-		4A9504CCFFE6A4B311CA0CBA = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PREBINDING = NO;
-				ZERO_LINK = NO;
-			};
-			name = Development;
-		};
-		4A9504CDFFE6A4B311CA0CBA = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				PREBINDING = NO;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-/* End PBXBuildStyle section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		8B37C75208187E0B00B0F810 = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				8AFA6892084D49F20005575E,
-				8AFA6893084D49F20005575E,
-				8AFA6894084D49F20005575E,
-				8AFA6895084D49F20005575E,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 = {
@@ -414,21 +355,9 @@
 				8D1107290486CEB800E47090,
 				8D11072C0486CEB800E47090,
 				8D11072E0486CEB800E47090,
-				8B37C75208187E0B00B0F810,
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = OpenALExample_Prefix.pch;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				PRODUCT_NAME = OpenALExample;
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 			);
 			name = OpenALExample;
@@ -443,12 +372,6 @@
 		29B97313FDCFA39411CA2CEA = {
 			isa = PBXProject;
 			buildConfigurationList = 8ACC35E1087CA62B00AEF41C;
-			buildSettings = {
-			};
-			buildStyles = (
-				4A9504CCFFE6A4B311CA0CBA,
-				4A9504CDFFE6A4B311CA0CBA,
-			);
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
@@ -568,18 +491,21 @@
 		8ACC35E2087CA62B00AEF41C = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Development;
 		};
 		8ACC35E3087CA62B00AEF41C = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Deployment;
 		};
 		8ACC35E4087CA62B00AEF41C = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Default;
 		};

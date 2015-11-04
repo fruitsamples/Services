@@ -52,7 +52,7 @@ Abstract: Scene of Objects that will we sources and the listener of sound.
 
 Version: <1.0>
 
-© Copyright 2005 Apple Computer, Inc. All rights reserved.
+Â© Copyright 2005 Apple Computer, Inc. All rights reserved.
 
 IMPORTANT:  This Apple software is supplied to 
 you by Apple Computer, Inc. ("Apple") in 
@@ -147,7 +147,7 @@ void InitializeOpenAL()
 	ALCdevice		*newDevice = NULL;
 
 	// Create a new OpenAL Device
-	// Pass NULL to specify the systemÕs default output device
+	// Pass NULL to specify the systemâ€™s default output device
 	newDevice = alcOpenDevice(NULL);
 	if (newDevice != NULL)
 	{
@@ -481,9 +481,9 @@ static void drawCircle(GLdouble x, GLdouble y, GLdouble r, GLfloat red, GLfloat 
 	// Global Setting:
 	// Used to Force OpenAL to render to stereo, even if the user's default audio hw is multichannel
 
-	UInt32		setting = (inCheckBoxValue == 0) ? ALC_RENDER_CHANNEL_COUNT_MULTICHANNEL : ALC_RENDER_CHANNEL_COUNT_STEREO;
+	UInt32		setting = (inCheckBoxValue == 0) ? alGetEnumValue("ALC_RENDER_CHANNEL_COUNT_MULTICHANNEL") : alGetEnumValue("ALC_RENDER_CHANNEL_COUNT_STEREO");
 	
-	alSetInteger(ALC_RENDER_CHANNEL_COUNT, setting);
+	alSetInteger(alGetEnumValue("ALC_RENDER_CHANNEL_COUNT"), setting);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -494,9 +494,9 @@ static void drawCircle(GLdouble x, GLdouble y, GLdouble r, GLfloat red, GLfloat 
 	// Global Setting:
 	// Used to turn on HRTF Rendering when OpenAL is rendering to stereo
 	
-	UInt32		setting = (inCheckBoxValue == 0) ? ALC_SPATIAL_RENDERING_QUALITY_LOW : ALC_SPATIAL_RENDERING_QUALITY_HIGH;
+	UInt32		setting = (inCheckBoxValue == 0) ? alGetEnumValue("ALC_SPATIAL_RENDERING_QUALITY_LOW") : alGetEnumValue("ALC_SPATIAL_RENDERING_QUALITY_HIGH");
 	
-	alSetInteger(ALC_SPATIAL_RENDERING_QUALITY, setting);
+	alSetInteger(alGetEnumValue("ALC_SPATIAL_RENDERING_QUALITY"), setting);
 }
 
 @end

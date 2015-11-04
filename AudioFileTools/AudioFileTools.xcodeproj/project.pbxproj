@@ -12,18 +12,6 @@
 			buildConfigurationList = A9E883AB0874A59B00B2DFE8;
 			buildPhases = (
 			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 				91C82E0605CFF8B30042A20D,
 				91C82E0805CFF8B30042A20D,
@@ -888,57 +876,6 @@
 			fileRef = B6D5205E05B38EE80077A2BA;
 		};
 /* End PBXBuildFile section */
-
-/* Begin PBXBuildStyle section */
-		9171C2B107B060480067EEDA = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				OTHER_CFLAGS = "-DDEBUG";
-				ZERO_LINK = NO;
-			};
-			name = "Development-Tiger+";
-		};
-		9171C2B207B0605F0067EEDA = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				LIBRARY_SEARCH_PATHS = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.4;
-				ZERO_LINK = NO;
-			};
-			name = "Deployment-Tiger+";
-		};
-		B6B9FA2A05B38B09007FB890 = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "-DDEBUG";
-				ZERO_LINK = NO;
-			};
-			name = "Development-Panther";
-		};
-		B6B9FA2B05B38B09007FB890 = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				LIBRARY_SEARCH_PATHS = "";
-				ZERO_LINK = NO;
-			};
-			name = "Deployment-Panther";
-		};
-/* End PBXBuildStyle section */
 
 /* Begin PBXContainerItemProxy section */
 		91004356066E8609005A1EC3 = {
@@ -1971,19 +1908,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afconvert;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = afconvert;
@@ -2003,19 +1927,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afinterleave;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = afinterleave;
@@ -2035,20 +1946,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afplay;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = afplay;
@@ -2068,19 +1965,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afrecord;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = afrecord;
@@ -2100,19 +1984,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = audioformats;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = audioformats;
@@ -2132,20 +2003,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = auprocess;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = auprocess;
@@ -2165,20 +2022,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = auprocess;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = auprofile;
@@ -2198,21 +2041,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afinfo;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
-			};
 			dependencies = (
 			);
 			name = afinfo;
@@ -2226,14 +2054,6 @@
 		B6B9FA2C05B38B09007FB890 = {
 			isa = PBXProject;
 			buildConfigurationList = A9E883B70874A59B00B2DFE8;
-			buildSettings = {
-			};
-			buildStyles = (
-				B6B9FA2A05B38B09007FB890,
-				9171C2B107B060480067EEDA,
-				B6B9FA2B05B38B09007FB890,
-				9171C2B207B0605F0067EEDA,
-			);
 			hasScannedForEncodings = 1;
 			mainGroup = B6B9FA2805B38B09007FB890;
 			productRefGroup = B6D5204105B38D940077A2BA;
@@ -2596,23 +2416,6 @@
 			};
 			name = "Deployment-Tiger+";
 		};
-		A9E883860874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afconvert;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
 		A9E883880874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2702,23 +2505,6 @@
 				ZERO_LINK = NO;
 			};
 			name = "Deployment-Tiger+";
-		};
-		A9E8838C0874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afinterleave;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
 		};
 		A9E8838E0874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
@@ -2812,24 +2598,6 @@
 			};
 			name = "Deployment-Tiger+";
 		};
-		A9E883920874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afplay;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
 		A9E883940874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2920,23 +2688,6 @@
 			};
 			name = "Deployment-Tiger+";
 		};
-		A9E883980874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afrecord;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
 		A9E8839A0874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3026,23 +2777,6 @@
 				ZERO_LINK = NO;
 			};
 			name = "Deployment-Tiger+";
-		};
-		A9E8839E0874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = audioformats;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
 		};
 		A9E883A60874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
@@ -3142,25 +2876,6 @@
 			};
 			name = "Deployment-Tiger+";
 		};
-		A9E883AA0874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				INSTALL_PATH = /usr/local/bin;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = afinfo;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
-			};
-			name = Default;
-		};
 		A9E883AC0874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3246,22 +2961,6 @@
 				ZERO_LINK = NO;
 			};
 			name = "Deployment-Tiger+";
-		};
-		A9E883B00874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = All;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
 		};
 		A9E883B20874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
@@ -3357,24 +3056,6 @@
 			};
 			name = "Deployment-Tiger+";
 		};
-		A9E883B60874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = auprocess;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
-			name = Default;
-		};
 		A9E883B80874A59B00B2DFE8 = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3398,12 +3079,6 @@
 			buildSettings = {
 			};
 			name = "Deployment-Tiger+";
-		};
-		A9E883BC0874A59B00B2DFE8 = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-			};
-			name = Default;
 		};
 		A9F41D4008F4B00200A2BC1C = {
 			isa = XCBuildConfiguration;
@@ -3493,24 +3168,6 @@
 			};
 			name = "Deployment-Tiger+";
 		};
-		A9F41D4408F4B00200A2BC1C = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = auprofile;
-				REZ_EXECUTABLE = YES;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				ZERO_LINK = NO;
-			};
-			name = Default;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -3521,10 +3178,9 @@
 				A9E883830874A59B00B2DFE8,
 				A9E883840874A59B00B2DFE8,
 				A9E883850874A59B00B2DFE8,
-				A9E883860874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E883870874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3533,10 +3189,9 @@
 				A9E883890874A59B00B2DFE8,
 				A9E8838A0874A59B00B2DFE8,
 				A9E8838B0874A59B00B2DFE8,
-				A9E8838C0874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E8838D0874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3545,10 +3200,9 @@
 				A9E8838F0874A59B00B2DFE8,
 				A9E883900874A59B00B2DFE8,
 				A9E883910874A59B00B2DFE8,
-				A9E883920874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E883930874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3557,10 +3211,9 @@
 				A9E883950874A59B00B2DFE8,
 				A9E883960874A59B00B2DFE8,
 				A9E883970874A59B00B2DFE8,
-				A9E883980874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E883990874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3569,10 +3222,9 @@
 				A9E8839B0874A59B00B2DFE8,
 				A9E8839C0874A59B00B2DFE8,
 				A9E8839D0874A59B00B2DFE8,
-				A9E8839E0874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E883A50874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3581,10 +3233,9 @@
 				A9E883A70874A59B00B2DFE8,
 				A9E883A80874A59B00B2DFE8,
 				A9E883A90874A59B00B2DFE8,
-				A9E883AA0874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E883AB0874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3593,10 +3244,9 @@
 				A9E883AD0874A59B00B2DFE8,
 				A9E883AE0874A59B00B2DFE8,
 				A9E883AF0874A59B00B2DFE8,
-				A9E883B00874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E883B10874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3605,10 +3255,9 @@
 				A9E883B30874A59B00B2DFE8,
 				A9E883B40874A59B00B2DFE8,
 				A9E883B50874A59B00B2DFE8,
-				A9E883B60874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9E883B70874A59B00B2DFE8 = {
 			isa = XCConfigurationList;
@@ -3617,10 +3266,9 @@
 				A9E883B90874A59B00B2DFE8,
 				A9E883BA0874A59B00B2DFE8,
 				A9E883BB0874A59B00B2DFE8,
-				A9E883BC0874A59B00B2DFE8,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 		A9F41D3F08F4B00200A2BC1C = {
 			isa = XCConfigurationList;
@@ -3629,10 +3277,9 @@
 				A9F41D4108F4B00200A2BC1C,
 				A9F41D4208F4B00200A2BC1C,
 				A9F41D4308F4B00200A2BC1C,
-				A9F41D4408F4B00200A2BC1C,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
+			defaultConfigurationName = "Development-Panther";
 		};
 /* End XCConfigurationList section */
 	};
