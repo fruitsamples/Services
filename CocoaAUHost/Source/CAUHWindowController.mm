@@ -1,46 +1,50 @@
-/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
-
-	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
-			("Apple") in consideration of your agreement to the following terms, and your
-			use, installation, modification or redistribution of this Apple software
-			constitutes acceptance of these terms.  If you do not agree with these terms,
-			please do not use, install, modify or redistribute this Apple software.
-
-			In consideration of your agreement to abide by the following terms, and subject
-			to these terms, Apple grants you a personal, non-exclusive license, under Apple’s
-			copyrights in this original Apple software (the "Apple Software"), to use,
-			reproduce, modify and redistribute the Apple Software, with or without
-			modifications, in source and/or binary forms; provided that if you redistribute
-			the Apple Software in its entirety and without modifications, you must retain
-			this notice and the following text and disclaimers in all such redistributions of
-			the Apple Software.  Neither the name, trademarks, service marks or logos of
-			Apple Computer, Inc. may be used to endorse or promote products derived from the
-			Apple Software without specific prior written permission from Apple.  Except as
-			expressly stated in this notice, no other rights or licenses, express or implied,
-			are granted by Apple herein, including but not limited to any patent rights that
-			may be infringed by your derivative works or by other works in which the Apple
-			Software may be incorporated.
-
-			The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES NO
-			WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE IMPLIED
-			WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-			PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION ALONE OR IN
-			COMBINATION WITH YOUR PRODUCTS.
-
-			IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
-			CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-			GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-			ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION, MODIFICATION AND/OR DISTRIBUTION
-			OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF CONTRACT, TORT
-			(INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN
-			ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*	Copyright © 2007 Apple Inc. All Rights Reserved.
+	
+	Disclaimer: IMPORTANT:  This Apple software is supplied to you by 
+			Apple Inc. ("Apple") in consideration of your agreement to the
+			following terms, and your use, installation, modification or
+			redistribution of this Apple software constitutes acceptance of these
+			terms.  If you do not agree with these terms, please do not use,
+			install, modify or redistribute this Apple software.
+			
+			In consideration of your agreement to abide by the following terms, and
+			subject to these terms, Apple grants you a personal, non-exclusive
+			license, under Apple's copyrights in this original Apple software (the
+			"Apple Software"), to use, reproduce, modify and redistribute the Apple
+			Software, with or without modifications, in source and/or binary forms;
+			provided that if you redistribute the Apple Software in its entirety and
+			without modifications, you must retain this notice and the following
+			text and disclaimers in all such redistributions of the Apple Software. 
+			Neither the name, trademarks, service marks or logos of Apple Inc. 
+			may be used to endorse or promote products derived from the Apple
+			Software without specific prior written permission from Apple.  Except
+			as expressly stated in this notice, no other rights or licenses, express
+			or implied, are granted by Apple herein, including but not limited to
+			any patent rights that may be infringed by your derivative works or by
+			other works in which the Apple Software may be incorporated.
+			
+			The Apple Software is provided by Apple on an "AS IS" basis.  APPLE
+			MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+			THE IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS
+			FOR A PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND
+			OPERATION ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
+			
+			IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL
+			OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+			SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+			INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
+			MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED
+			AND WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE),
+			STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
+			POSSIBILITY OF SUCH DAMAGE.
 */
 #import <CoreAudioKit/CoreAudioKit.h>
 #import <AudioUnit/AUCocoaUIView.h>
 
 #include "CAComponent.h"
 #include "CAComponentDescription.h"
-#include "AudioFilePlay.h"
+#include "CAStreamBasicDescription.h"
+//#include "AudioFilePlay.h"
 
 #import "CAUHWindowController.h"
 
@@ -254,16 +258,105 @@ void getComponentsForAUType(OSType inAUType, CAComponent *ioCompBuffer, int coun
 															kAudioUnitSubType_DefaultOutput,
 															kAudioUnitManufacturer_Apple	);
     
-	verify_noerr (AUGraphNewNode(mGraph, &desc, 0, NULL, &mOutputNode));
+	verify_noerr (AUGraphAddNode(mGraph, &desc, &mOutputNode));
+	
+	desc = CAComponentDescription (	kAudioUnitType_Generator,
+									kAudioUnitSubType_AudioFilePlayer,
+									kAudioUnitManufacturer_Apple	);
+    
+	verify_noerr (AUGraphAddNode(mGraph, &desc, &mFileNode));
+
 	verify_noerr (AUGraphOpen(mGraph));
-    verify_noerr (AUGraphGetNodeInfo(mGraph, mOutputNode, NULL, NULL, NULL, &mOutputUnit));
+	
+    verify_noerr (AUGraphNodeInfo(mGraph, mFileNode, NULL, &mFileUnit));
+    verify_noerr (AUGraphNodeInfo(mGraph, mOutputNode, NULL, &mOutputUnit));
+}
+
+void filePlayCompletionProc	(	void *userData, 
+								ScheduledAudioFileRegion *fileRegion, 
+								OSStatus result)
+{
+	printf("File completed!\n");
+	HostingWindowController* This = (HostingWindowController*)userData;
+	[This stopGraph];
+}
+
+- (void)prepareFileAU
+{	
+	
+	// calculate the duration
+	UInt64 nPackets;
+	UInt32 propsize = sizeof(nPackets);
+	verify_noerr (AudioFileGetProperty(mAFID, kAudioFilePropertyAudioDataPacketCount, &propsize, &nPackets));
+	
+	CAStreamBasicDescription fileFormat;
+	propsize = sizeof(CAStreamBasicDescription);
+	verify_noerr (AudioFileGetProperty(mAFID, kAudioFilePropertyDataFormat, &propsize, &fileFormat));
+		
+	//Float64 fileDuration = (nPackets * fileFormat.mFramesPerPacket) / fileFormat.mSampleRate;
+
+	ScheduledAudioFileRegion rgn;
+	memset (&rgn.mTimeStamp, 0, sizeof(rgn.mTimeStamp));
+	rgn.mTimeStamp.mFlags = kAudioTimeStampSampleTimeValid;
+	rgn.mTimeStamp.mSampleTime = 0;
+	rgn.mCompletionProc = filePlayCompletionProc;
+	rgn.mCompletionProcUserData = self;
+	rgn.mAudioFile = mAFID;
+	rgn.mLoopCount = 1;
+	rgn.mStartFrame = 0;
+	rgn.mFramesToPlay = UInt32(nPackets * fileFormat.mFramesPerPacket);
+		
+		// tell the file player AU to play all of the file
+	verify_noerr (AudioUnitSetProperty(	mFileUnit, 
+										kAudioUnitProperty_ScheduledFileRegion, 
+										kAudioUnitScope_Global, 
+										0,
+										&rgn, 
+										sizeof(rgn)));
+	
+	// prime the fp AU with default values
+	UInt32 defaultVal = 0;
+	verify_noerr (AudioUnitSetProperty(	mFileUnit,
+										kAudioUnitProperty_ScheduledFilePrime, 
+										kAudioUnitScope_Global,
+										0,
+										&defaultVal, 
+										sizeof(defaultVal)));
+
+	// tell the fp AU when to start playing (this ts is in the AU's render time stamps; -1 means next render cycle)
+	AudioTimeStamp startTime;
+	memset (&startTime, 0, sizeof(startTime));
+	startTime.mFlags = kAudioTimeStampSampleTimeValid;
+	startTime.mSampleTime = -1;
+	verify_noerr (AudioUnitSetProperty(	mFileUnit,
+										kAudioUnitProperty_ScheduleStartTimeStamp, 
+										kAudioUnitScope_Global, 
+										0,
+										&startTime, 
+										sizeof(startTime)));
+										
+	verify_noerr (AudioUnitSetProperty(	mFileUnit,
+										kAudioUnitProperty_ScheduleStartTimeStamp, 
+										kAudioUnitScope_Global, 
+										0,
+										&startTime, 
+										sizeof(startTime)));									
+
 }
 
 - (void)startGraph
 {
     verify_noerr (AUGraphConnectNodeInput (mGraph, mTargetNode, 0, mOutputNode, 0));
-    verify_noerr (AUGraphUpdate (mGraph, NULL) == noErr);
+	// if the unit is an effect, connect the file player to its input
+	if (mComponentHostType == kAudioUnitType_Effect)
+	    verify_noerr (AUGraphConnectNodeInput (mGraph, mFileNode, 0, mTargetNode, 0));
+    
+	verify_noerr (AUGraphUpdate (mGraph, NULL) == noErr);
     verify_noerr (AUGraphInitialize(mGraph) == noErr);
+	
+	if (mComponentHostType == kAudioUnitType_Effect)
+		[self prepareFileAU];
+		
     verify_noerr (AUGraphStart(mGraph) == noErr);
 }
 
@@ -271,14 +364,10 @@ void getComponentsForAUType(OSType inAUType, CAComponent *ioCompBuffer, int coun
 {
 	verify_noerr (AUGraphStop(mGraph));
 	verify_noerr (AUGraphUninitialize(mGraph));
-	verify_noerr (AUGraphDisconnectNodeInput (mGraph, mOutputNode, 0));
+	verify_noerr (AUGraphClearConnections (mGraph));
 	verify_noerr (AUGraphUpdate (mGraph, NULL));
-	if (mAFPID) {
-		verify_noerr (AFP_Disconnect(mAFPID));
-		verify_noerr (DisposeAudioFilePlayID(mAFPID));
-		[uiAudioFileNowPlayingName setStringValue:@""];
-		mAFPID = NULL;
-	}
+	if(mAFID)
+		verify_noerr (AudioFileClose(mAFID));
 }
 
 - (void)destroyGraph
@@ -297,14 +386,17 @@ void getComponentsForAUType(OSType inAUType, CAComponent *ioCompBuffer, int coun
 - (void)loadAudioFile:(NSString *)inAudioFileName
 {
 	FSRef destFSRef;
-	UInt8 *pathName = (UInt8 *)[inAudioFileName cString];
+	UInt8 *pathName = (UInt8 *)[inAudioFileName UTF8String];
+
 	verify_noerr (FSPathMakeRef(pathName, &destFSRef, NULL));
-	
-	verify_noerr (NewAudioFilePlayID(&destFSRef, &mAFPID));
-	verify_noerr (AFP_SetNotifier(mAFPID, AudioFileNotificationHandler, self));
-	
-	verify_noerr (AFP_SetDestination(mAFPID, mTargetUnit, 0));
-	verify_noerr (AFP_Connect(mAFPID));
+	verify_noerr (AudioFileOpen(&destFSRef, fsRdPerm, 0, &mAFID));
+
+	verify_noerr (AudioUnitSetProperty(	mFileUnit, 
+										kAudioUnitProperty_ScheduledFileIDs,
+										kAudioUnitScope_Global,
+										0,
+										&mAFID,
+										sizeof(mAFID) ));
 }
 
 - (void)awakeFromNib
@@ -325,10 +417,11 @@ void getComponentsForAUType(OSType inAUType, CAComponent *ioCompBuffer, int coun
     
 	// make this the app. delegate
 	[NSApp setDelegate:self];
+	
+	[[self window] setDelegate: self];
 }
 
--(void)dealloc
-{
+-(void)cleanup {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
 	if (mAUList != NULL) {
@@ -338,12 +431,10 @@ void getComponentsForAUType(OSType inAUType, CAComponent *ioCompBuffer, int coun
 	
     [mAudioFileList release];
     
-    if (mAFPID)
-		verify_noerr(DisposeAudioFilePlayID(mAFPID));
+	if(mAFID)
+		verify_noerr(AudioFileClose(mAFID));
     
     [self destroyGraph];
-	
-	[super dealloc];
 }
 
 - (IBAction)iaAUTypeChanged:(id)sender
@@ -363,10 +454,10 @@ void getComponentsForAUType(OSType inAUType, CAComponent *ioCompBuffer, int coun
 		verify_noerr (AUGraphRemoveNode(mGraph, mTargetNode));
     }
 	
-    verify_noerr (AUGraphNewNode(mGraph, &desc, 0, NULL, &mTargetNode));
-	verify_noerr (AUGraphGetNodeInfo(mGraph, mTargetNode, NULL, NULL, NULL, &mTargetUnit));
+    verify_noerr (AUGraphAddNode(mGraph, &desc, &mTargetNode));
+	verify_noerr (AUGraphNodeInfo(mGraph, mTargetNode, NULL, &mTargetUnit));
     verify_noerr (AUGraphUpdate (mGraph, NULL));
-    
+	
 	[self showCocoaViewForAU:mTargetUnit];
 }
 
@@ -425,6 +516,10 @@ void getComponentsForAUType(OSType inAUType, CAComponent *ioCompBuffer, int coun
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)inSender
 {
 	return YES;
+}
+
+- (void) windowWillClose:(NSNotification *) aNotification {
+	[self cleanup];
 }
 
 @end

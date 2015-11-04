@@ -1,39 +1,42 @@
-/*	Copyright: 	© Copyright 2005 Apple Computer, Inc. All rights reserved.
-
-	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
-			("Apple") in consideration of your agreement to the following terms, and your
-			use, installation, modification or redistribution of this Apple software
-			constitutes acceptance of these terms.  If you do not agree with these terms,
-			please do not use, install, modify or redistribute this Apple software.
-
-			In consideration of your agreement to abide by the following terms, and subject
-			to these terms, Apple grants you a personal, non-exclusive license, under Apple’s
-			copyrights in this original Apple software (the "Apple Software"), to use,
-			reproduce, modify and redistribute the Apple Software, with or without
-			modifications, in source and/or binary forms; provided that if you redistribute
-			the Apple Software in its entirety and without modifications, you must retain
-			this notice and the following text and disclaimers in all such redistributions of
-			the Apple Software.  Neither the name, trademarks, service marks or logos of
-			Apple Computer, Inc. may be used to endorse or promote products derived from the
-			Apple Software without specific prior written permission from Apple.  Except as
-			expressly stated in this notice, no other rights or licenses, express or implied,
-			are granted by Apple herein, including but not limited to any patent rights that
-			may be infringed by your derivative works or by other works in which the Apple
-			Software may be incorporated.
-
-			The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES NO
-			WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE IMPLIED
-			WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-			PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION ALONE OR IN
-			COMBINATION WITH YOUR PRODUCTS.
-
-			IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL OR
-			CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-			GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-			ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION, MODIFICATION AND/OR DISTRIBUTION
-			OF THE APPLE SOFTWARE, HOWEVER CAUSED AND WHETHER UNDER THEORY OF CONTRACT, TORT
-			(INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN
-			ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/*	Copyright © 2007 Apple Inc. All Rights Reserved.
+	
+	Disclaimer: IMPORTANT:  This Apple software is supplied to you by 
+			Apple Inc. ("Apple") in consideration of your agreement to the
+			following terms, and your use, installation, modification or
+			redistribution of this Apple software constitutes acceptance of these
+			terms.  If you do not agree with these terms, please do not use,
+			install, modify or redistribute this Apple software.
+			
+			In consideration of your agreement to abide by the following terms, and
+			subject to these terms, Apple grants you a personal, non-exclusive
+			license, under Apple's copyrights in this original Apple software (the
+			"Apple Software"), to use, reproduce, modify and redistribute the Apple
+			Software, with or without modifications, in source and/or binary forms;
+			provided that if you redistribute the Apple Software in its entirety and
+			without modifications, you must retain this notice and the following
+			text and disclaimers in all such redistributions of the Apple Software. 
+			Neither the name, trademarks, service marks or logos of Apple Inc. 
+			may be used to endorse or promote products derived from the Apple
+			Software without specific prior written permission from Apple.  Except
+			as expressly stated in this notice, no other rights or licenses, express
+			or implied, are granted by Apple herein, including but not limited to
+			any patent rights that may be infringed by your derivative works or by
+			other works in which the Apple Software may be incorporated.
+			
+			The Apple Software is provided by Apple on an "AS IS" basis.  APPLE
+			MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
+			THE IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS
+			FOR A PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND
+			OPERATION ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
+			
+			IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL
+			OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+			SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+			INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
+			MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED
+			AND WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE),
+			STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
+			POSSIBILITY OF SUCH DAMAGE.
 */
 /*=============================================================================
 	main.cpp
@@ -107,11 +110,8 @@ static OSStatus InputCallback (void 			*inRefCon,
 
 	CAAudioFile &readFile = *(static_cast<CAAudioFile*>(inRefCon));
 
-#if !CAAF_USE_EXTAUDIOFILE
-	if (SInt64(inTimeStamp->mSampleTime) > readFile.GetNumberPackets()) {
-#else
 	if (SInt64(inTimeStamp->mSampleTime) > readFile.GetNumberFrames()) {
-#endif
+
 #if DEBUG
 	printf ("reading past end of input\n");
 #endif
@@ -145,11 +145,7 @@ static OSStatus FConvInputCallback (void 			*inRefCon,
 		// in all other cases, the CAAUProcessor class will NEVER call you for input
 		// beyond the end of the file....
 
-#if !CAAF_USE_EXTAUDIOFILE
-	if (SInt64(inTimeStamp->mSampleTime) >= readFile.GetNumberPackets()) {
-#else
 	if (SInt64(inTimeStamp->mSampleTime) >= readFile.GetNumberFrames()) {
-#endif
 		return -1;
 	}
 	
@@ -157,20 +153,12 @@ static OSStatus FConvInputCallback (void 			*inRefCon,
 	UInt32 readPackets = inNumberFrames;
 		
 		// also, have to do this for a format converter AU - otherwise we'd just read what we're told
-#if !CAAF_USE_EXTAUDIOFILE
-	if (SInt64(inTimeStamp->mSampleTime + inNumberFrames) > readFile.GetNumberPackets()) {
-#else
 	if (SInt64(inTimeStamp->mSampleTime + inNumberFrames) > readFile.GetNumberFrames()) {
-#endif
 		// first set this to zero as we're only going to read a partial number of frames
 		AudioBuffer *buf = ioData->mBuffers;
 		for (UInt32 i = ioData->mNumberBuffers; i--; ++buf)
 			memset((Byte *)buf->mData, 0, buf->mDataByteSize);
-#if !CAAF_USE_EXTAUDIOFILE
-		readPackets = UInt32 (readFile.GetNumberPackets() - SInt64(inTimeStamp->mSampleTime));
-#else
 		readPackets = UInt32 (readFile.GetNumberFrames() - SInt64(inTimeStamp->mSampleTime));
-#endif
 	}
 	
 	readFile.Read (readPackets, ioData);
@@ -444,11 +432,7 @@ int main(int argc, const char * argv[])
 
 		ReadBuffer* readBuf = NULL;	
 
-#if !CAAF_USE_EXTAUDIOFILE
-		UInt64 numInputSamples = srcFile.GetNumberPackets();
-#else
 		UInt64 numInputSamples = srcFile.GetNumberFrames();
-#endif
 	
 		if (shortMemoryProfile) {
 			readBuf = new ReadBuffer;
@@ -575,11 +559,7 @@ home:
 	if (shortMemoryProfile)
 		numWritten = 0;
 	else {
-#if !CAAF_USE_EXTAUDIOFILE
-		numWritten = destFile.GetNumberPackets();
-#else
 		numWritten = destFile.GetNumberFrames();
-#endif
 	}
 
 	printf ("Read File Time:%.2f secs for %lld packets (%.1f secs), wrote %lld packets\n", 
@@ -590,11 +570,7 @@ home:
 
 	if (!shortMemoryProfile) 
 	{
-#if !CAAF_USE_EXTAUDIOFILE
-		UInt64 numOutputSamples = destFile.GetNumberPackets();
-#else
 		UInt64 numOutputSamples = destFile.GetNumberFrames();
-#endif
 	
 		if (numOutputSamples == numInputSamples) {
 			printf ("\tWrote the same number of packets as read\n");
